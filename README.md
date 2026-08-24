@@ -38,4 +38,8 @@ pytest tests/direct -q
 python scripts/preflight.py
 ```
 
-Helix v0.1.0 is not deployed yet. Deployment evidence will be added only after Explorer source retrieval matches the committed source byte-for-byte.
+## Studionet deployment
+
+Helix v0.1.0 is deployed at [`0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732`](https://explorer-studio.genlayer.com/address/0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732). Deployment transaction [`0x92b9…cb4b0a`](https://explorer-studio.genlayer.com/tx/0x92b9cab4228f684f5d7406869b5447f801f59dca49da8aa3f4bbf271f8cb4b0a) finalized with majority agreement and GenVM execution `SUCCESS`.
+
+The deployed source was retrieved independently after finalization. Its SHA-256 and the local `contracts/helix.py` SHA-256 are both `40a561e42421ec6e4f13d63748c4b5c64849893f86a1bab023f35a6c1e4a0c89`; the 23,331-character sources match byte-for-byte.
