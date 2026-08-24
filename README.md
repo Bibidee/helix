@@ -40,6 +40,6 @@ python scripts/preflight.py
 
 ## Studionet deployment
 
-Helix v0.1.0 at [`0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732`](https://explorer-studio.genlayer.com/address/0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732) is a legacy deployment. It is source-matched but cannot accept the official CLI’s numeric representation of a `0x…` SHA-256 commitment. Helix v0.1.1 adds equivalent deterministic normalization and requires a fresh deployment.
+Helix v0.1.0 and v0.1.1 deployments are legacy. Helix v0.1.2 is the current release candidate and requires a fresh deployment before live evidence is recorded.
 
-The v0.1.0 source was retrieved independently after finalization. Its SHA-256 and then-local source SHA-256 were both `40a561e42421ec6e4f13d63748c4b5c64849893f86a1bab023f35a6c1e4a0c89`; the 23,331-character sources matched byte-for-byte.
+Every current-deployment claim is recorded only after finalization and retrieved-source parity.

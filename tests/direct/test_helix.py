@@ -35,7 +35,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.1.1"
+    assert contract.get_info()["version"] == "0.1.2"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -106,6 +106,47 @@ def test_challenge_rereview_approval_slashes_to_neutral_sink(direct_vm, direct_d
     direct_vm.value = 0; warp_to(direct_vm, "2026-08-24T00:01:01Z"); mock_review(direct_vm); contract.review_action("action-1")
     action = contract.get_action("action-1")
     assert action["verdict"] == "approved" and action["challenge_bond_held"] == "0" and action["challenge_settlement"] == "slashed"
+
+
+def test_successful_rereview_is_final_and_cannot_be_challenged_twice(direct_vm, direct_deploy, direct_alice):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    direct_vm.value = BOND
+    with direct_vm.prank(direct_alice): contract.challenge_action("action-1")
+    direct_vm.value = 0; warp_to(direct_vm, "2026-08-24T00:01:01Z"); mock_review(direct_vm); contract.review_action("action-1")
+    with direct_vm.expect_revert("cannot be challenged"):
+        contract.challenge_action("action-1")
+
+
+def test_closure_during_challenge_cancels_and_refunds_once(direct_vm, direct_deploy, direct_alice):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    direct_vm.value = BOND
+    with direct_vm.prank(direct_alice): contract.challenge_action("action-1")
+    direct_vm.value = 0; contract.set_delegation_status("delegation-1", "closed")
+    contract.settle_expired_challenge("action-1")
+    assert contract.get_action("action-1")["status"] == "cancelled"
+    with direct_vm.prank(direct_alice):
+        contract.withdraw_challenge_bond("action-1")
+        with direct_vm.expect_revert("No challenge refund"): contract.withdraw_challenge_bond("action-1")
+
+
+def test_sink_and_public_status_guards(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy)
+    sink = "0x000000000000000000000000000000000000dEaD"
+    with direct_vm.expect_revert("Delegate cannot be challenge sink"):
+        contract.create_delegation("sink", sink, "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 60)
+    create(contract)
+    with direct_vm.expect_revert("Invalid delegation status"):
+        contract.set_delegation_status("delegation-1", "invalid")
+    contract.set_delegation_status("delegation-1", "closed")
+    with direct_vm.expect_revert("Illegal delegation transition"):
+        contract.set_delegation_status("delegation-1", "active")
+
+
+def test_consumed_actions_cannot_be_cancelled_or_challenged(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    warp_to(direct_vm, "2026-08-24T00:01:01Z"); contract.consume_action("action-1")
+    with direct_vm.expect_revert("cannot be cancelled"): contract.cancel_action("action-1")
+    with direct_vm.expect_revert("cannot be challenged"): contract.challenge_action("action-1")
 
 
 def test_timeout_refund_survives_pause_and_double_withdrawal(direct_vm, direct_deploy, direct_alice):

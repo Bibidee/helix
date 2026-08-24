@@ -10,7 +10,7 @@ The contract will use one internal actionability predicate for the view and cons
 
 ## Challenge round and settlement
 
-The first exact-bond challenge opens one shared round and immediately removes actionability. There is no challenger list and no finite set of challenge slots to occupy. The review may occur only once the original challenge window closes; anyone can trigger it. Approved re-review sends the bond to a neutral configured sink, never to the owner or delegate. A blocked/inconclusive re-review or deadline timeout makes the challenger refund available exactly once. Settlement and withdrawal remain available during contract pause or delegation closure.
+The first exact-bond challenge opens one shared round and immediately removes actionability. There is no challenger list and no finite set of challenge slots to occupy. Each action has exactly one lifetime challenge round. After challenged re-review, whether it approves, blocks, or is inconclusive, another challenge is rejected. Approved re-review is final and sends the bond to a neutral sink that can equal neither owner nor delegate. Blocked/inconclusive, timeout, permanent delegation closure, or delegation expiry make the challenger refund available exactly once. Settlement and withdrawal remain available during contract pause.
 
 ## Textual artefacts
 

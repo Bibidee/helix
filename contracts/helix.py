@@ -1,4 +1,4 @@
-# v0.1.1
+# v0.1.2
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 """Helix: semantic, hash-bound delegation-scope attestations."""
 
@@ -68,6 +68,7 @@ class Action:
     challenge_open_until: u256
     challenge_review_deadline: u256
     challenge_settlement: str
+    challenge_round_completed: bool
 
 
 class DelegationCreated(gl.Event):
@@ -293,6 +294,7 @@ class Helix(gl.Contract):
         if self.delegations.get(delegation_id) is not None or int(self.delegation_count) >= MAX_DELEGATIONS: raise gl.vm.UserError(f"{EXPECTED} Delegation unavailable")
         if int(expires_at) <= timestamp() or int(challenge_bond) <= 0 or int(challenge_window) < MIN_WINDOW or int(challenge_window) > MAX_WINDOW: raise gl.vm.UserError(f"{EXPECTED} Invalid delegation configuration")
         delegate_address = nonzero_address(delegate, "delegate")
+        if delegate_address == self.challenge_sink: raise gl.vm.UserError(f"{EXPECTED} Delegate cannot be challenge sink")
         self.delegations[delegation_id] = Delegation(delegation_id, self.owner, delegate_address, text(resource_id, "resource_id", 180), text(purpose, "purpose"), text(constraints, "constraints"), text(exclusions, "exclusions"), url(baseline_url, "baseline_url"), canonical_hash(baseline_hash), expires_at, challenge_bond, challenge_window, ACTIVE, u256(timestamp()))
         self.delegation_count = u256(int(self.delegation_count) + 1); DelegationCreated(delegation_id, delegate_address).emit()
 
@@ -300,7 +302,9 @@ class Helix(gl.Contract):
     def set_delegation_status(self, delegation_id: str, status: str) -> None:
         delegation = self._delegation(delegation_id)
         if gl.message.sender_address != delegation.owner: raise gl.vm.UserError(f"{EXPECTED} Owner only")
-        target = choice(status, (ACTIVE, PAUSED, CLOSED)); allowed = {ACTIVE: (PAUSED, CLOSED), PAUSED: (ACTIVE, CLOSED), CLOSED: ()}
+        try: target = choice(status, (ACTIVE, PAUSED, CLOSED))
+        except ValueError: raise gl.vm.UserError(f"{EXPECTED} Invalid delegation status")
+        allowed = {ACTIVE: (PAUSED, CLOSED), PAUSED: (ACTIVE, CLOSED), CLOSED: ()}
         if target not in allowed[delegation.status] or (self.paused and target == ACTIVE): raise gl.vm.UserError(f"{EXPECTED} Illegal delegation transition")
         delegation.status = target
 
@@ -310,13 +314,16 @@ class Helix(gl.Contract):
         if delegation.status != ACTIVE or timestamp() >= int(delegation.expires_at) or gl.message.sender_address != delegation.delegate: raise gl.vm.UserError(f"{EXPECTED} Active delegate required")
         if self.actions.get(action_id) is not None or int(self.action_count) >= MAX_ACTIONS: raise gl.vm.UserError(f"{EXPECTED} Action unavailable")
         zero = Address("0x0000000000000000000000000000000000000000")
-        self.actions[action_id] = Action(action_id, delegation_id, gl.message.sender_address, url(manifest_url, "manifest_url"), canonical_hash(manifest_hash), url(evidence_url, "evidence_url"), canonical_hash(evidence_hash), text(summary, "summary", 400), PROPOSED, "", "unclear", "unclear", "unclear", "unclear", "unclear", u256(0), "", u256(timestamp()), u256(0), u256(0), zero, u256(0), u256(0), u256(0), "")
+        self.actions[action_id] = Action(action_id, delegation_id, gl.message.sender_address, url(manifest_url, "manifest_url"), canonical_hash(manifest_hash), url(evidence_url, "evidence_url"), canonical_hash(evidence_hash), text(summary, "summary", 400), PROPOSED, "", "unclear", "unclear", "unclear", "unclear", "unclear", u256(0), "", u256(timestamp()), u256(0), u256(0), zero, u256(0), u256(0), u256(0), "", False)
         self.action_count = u256(int(self.action_count) + 1); ActionProposed(action_id, delegation_id).emit()
 
     @gl.public.write
     def review_action(self, action_id: str) -> None:
         action = self._action(action_id); delegation = self._delegation(str(action.delegation_id)); now = timestamp()
         if action.status not in (PROPOSED, CHALLENGED): raise gl.vm.UserError(f"{EXPECTED} Action is not reviewable")
+        if action.status == CHALLENGED and (delegation.status == CLOSED or now >= int(delegation.expires_at)):
+            action.status, action.verdict, action.challenge_settlement = CANCELLED, "", "refund"
+            ChallengeSettled(action_id, "refund_available", action.challenge_bond_held).emit(); return
         if now >= int(delegation.expires_at): raise gl.vm.UserError(f"{EXPECTED} Delegation expired")
         if action.status == CHALLENGED and now < int(action.challenge_open_until): raise gl.vm.UserError(f"{EXPECTED} Challenge window remains open")
         if action.status == CHALLENGED and now >= int(action.challenge_review_deadline): raise gl.vm.UserError(f"{EXPECTED} Challenge settlement timeout is open")
@@ -338,6 +345,7 @@ class Helix(gl.Contract):
         result = envelope.get("result")
         if not valid_analysis(result): raise gl.vm.UserError(f"{RETRYABLE} Invalid consensus result")
         result = canonical_analysis(result); action.status, action.verdict = REVIEWED, verdict(result)
+        if int(action.challenge_bond_held) > 0: action.challenge_round_completed = True
         action.scope_fit, action.authority_expansion, action.risk_exposure = result["scope_fit"], result["authority_expansion"], result["risk_exposure"]
         action.temporal_compliance, action.reversibility = result["temporal_compliance"], result["reversibility"]
         action.confidence, action.rationale, action.reviewed_at = u256(result["confidence"]), result["rationale"], u256(now)
@@ -353,7 +361,7 @@ class Helix(gl.Contract):
     @gl.public.write.payable
     def challenge_action(self, action_id: str) -> None:
         action = self._action(action_id); delegation = self._delegation(str(action.delegation_id)); now = timestamp()
-        if action.status != REVIEWED or action.verdict != APPROVED or now >= int(action.reviewed_at) + int(delegation.challenge_window): raise gl.vm.UserError(f"{EXPECTED} Action cannot be challenged")
+        if action.challenge_round_completed or action.status != REVIEWED or action.verdict != APPROVED or now >= int(action.reviewed_at) + int(delegation.challenge_window): raise gl.vm.UserError(f"{EXPECTED} Action cannot be challenged")
         if int(gl.message.value) != int(delegation.challenge_bond): raise gl.vm.UserError(f"{EXPECTED} Exact challenge bond required")
         action.status, action.verdict, action.challenged_at, action.challenger = CHALLENGED, "", u256(now), gl.message.sender_address
         action.challenge_bond_held, action.challenge_open_until = gl.message.value, u256(int(action.reviewed_at) + int(delegation.challenge_window))
@@ -363,7 +371,8 @@ class Helix(gl.Contract):
     @gl.public.write
     def settle_expired_challenge(self, action_id: str) -> None:
         action = self._action(action_id)
-        if action.status != CHALLENGED or int(action.challenge_bond_held) == 0 or timestamp() < int(action.challenge_review_deadline): raise gl.vm.UserError(f"{EXPECTED} Challenge timeout is not open")
+        expired = timestamp() >= int(action.challenge_review_deadline) or timestamp() >= int(self._delegation(str(action.delegation_id)).expires_at) or self._delegation(str(action.delegation_id)).status == CLOSED
+        if action.status != CHALLENGED or int(action.challenge_bond_held) == 0 or not expired: raise gl.vm.UserError(f"{EXPECTED} Challenge timeout is not open")
         action.status, action.verdict, action.challenge_settlement = CANCELLED, "", "refund"
         ChallengeSettled(action_id, "refund_available", action.challenge_bond_held).emit()
 
@@ -405,4 +414,4 @@ class Helix(gl.Contract):
 
     @gl.public.view
     def get_info(self) -> dict:
-        return {"name": "Helix", "version": "0.1.1", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}
+        return {"name": "Helix", "version": "0.1.2", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}

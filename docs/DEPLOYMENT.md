@@ -8,4 +8,4 @@
 - Local/deployed SHA-256: `40a561e42421ec6e4f13d63748c4b5c64849893f86a1bab023f35a6c1e4a0c89`
 - Parity: retrieved source is an exact byte-for-byte match (23,331 characters).
 
-This source is source-matched but lacks numeric SHA-256 normalization for the official CLI. Helix v0.1.1 is the active release candidate; it must be deployed before live path evidence is recorded.
+This source is legacy. Helix v0.1.2 is the active release candidate; it adds one-round challenge finality and deterministic closure/expiry refunds, and must be deployed before live path evidence is recorded.
