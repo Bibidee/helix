@@ -45,6 +45,8 @@ python scripts/preflight.py
 
 The preflight enforces one deployable source, Direct Mode tests, GenVM lint, and ABI schema generation. `scripts/verify_source_parity.mjs` queries finalized `gen_getContractCode` and compares the retrieved bytes with `contracts/helix.py`.
 
+The Direct Mode suite includes genuine validator-specific divergence checks via `direct_vm.run_validator()`: approval/block disagreement, approval/inconclusive disagreement, blocked diagnostic disagreement, confidence-only approval disagreement, and artifact-availability disagreement. These tests do not alter the frozen deployable source.
+
 ## Studionet release status
 
 The current source tree is v0.4.0 and is source-matched to [`0xfB191c351c51B20d0A84F2B1363b0e151300704E`](https://explorer-studio.genlayer.com/address/0xfB191c351c51B20d0A84F2B1363b0e151300704E), deployed by [`0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa`](https://explorer-studio.genlayer.com/tx/0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa). Deployment finalized with `MAJORITY_AGREE` and GenVM `SUCCESS`. Source commit is `5545800ee64223dc5aaac4715d7ce8e8f56cc0a4`, 31,652 bytes, SHA-256 `a4caf0763bd72db399c29962074a5fcc5875dece6631a6286248454fba9c338a`; retrieved source matches exactly byte-for-byte. v0.3.1 remains historical at [`0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2`](https://explorer-studio.genlayer.com/address/0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2).

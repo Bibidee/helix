@@ -288,3 +288,45 @@ def test_unsafe_evidence_consensus_regression_blocks_when_diagnostics_differ(dir
     direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": validator}
     contract.review_action("action-1")
     assert contract.get_action("action-1")["verdict"] == "blocked"
+
+
+def _capture_review(contract, direct_vm, leader_result):
+    direct_vm.clear_validators()
+    direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": leader_result}
+    contract.review_action("action-1")
+
+
+def test_validator_specific_approved_vs_blocked_is_rejected(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    _capture_review(contract, direct_vm, analysis())
+    direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": analysis(scope_fit="no", rationale="Outside scope.")}
+    assert direct_vm.run_validator() is False
+
+
+def test_validator_specific_approved_vs_inconclusive_is_rejected(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    _capture_review(contract, direct_vm, analysis())
+    direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": analysis(confidence=74, rationale="Insufficient confidence.")}
+    assert direct_vm.run_validator() is False
+
+
+def test_validator_specific_blocked_diagnostic_disagreement_is_accepted(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    leader = analysis(scope_fit="no", authority_expansion="yes", risk_exposure="yes", rationale="Scope and authority violation.")
+    _capture_review(contract, direct_vm, leader)
+    direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": analysis(scope_fit="no", authority_expansion="yes", risk_exposure="no", reversibility="unclear", confidence=76, rationale="Scope violation only.")}
+    assert direct_vm.run_validator() is True
+
+
+def test_validator_specific_approved_confidence_disagreement_is_accepted(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    _capture_review(contract, direct_vm, analysis(confidence=75, rationale="Minimum safe confidence."))
+    direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": analysis(confidence=95, rationale="Higher safe confidence.")}
+    assert direct_vm.run_validator() is True
+
+
+def test_validator_specific_artifact_availability_disagreement_is_rejected(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    _capture_review(contract, direct_vm, analysis())
+    direct_vm._helix_module.observe = lambda *args: {"kind": "observation_error", "class": "fetch_unavailable"}
+    assert direct_vm.run_validator() is False
