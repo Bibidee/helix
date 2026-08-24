@@ -340,7 +340,7 @@ class Helix(gl.Contract):
         self._active(); action_id = identifier(action_id, "action_id"); delegation = self._delegation(delegation_id)
         if delegation.status != ACTIVE or timestamp() >= int(delegation.expires_at) or gl.message.sender_address != delegation.delegate: raise gl.vm.UserError(f"{EXPECTED} Active delegate required")
         if int(delegation.open_action_count) >= MAX_OPEN_ACTIONS_PER_DELEGATION: raise gl.vm.UserError(f"{EXPECTED} Delegation open-action quota exhausted")
-        if self.actions.get(action_id) is not None or int(self.action_count) >= MAX_ACTIONS: raise gl.vm.UserError(f"{EXPECTED} Action unavailable")
+        if self.actions.get(action_id) is not None: raise gl.vm.UserError(f"{EXPECTED} Action unavailable")
         manifest_hash = canonical_hash(manifest_hash); evidence_hash = canonical_hash(evidence_hash)
         occurrence_nonce = clean(occurrence_nonce) or action_id
         occurrence_nonce = text(occurrence_nonce, "occurrence_nonce", 180)
