@@ -30,7 +30,7 @@ def create(contract, consumer=""):
         BASELINE,
         EXPIRY,
         BOND,
-        300,
+        21600,
         consumer,
     )
 
@@ -69,7 +69,7 @@ def open_challenge(direct_vm, contract, challenger):
     with direct_vm.prank(challenger):
         contract.challenge_action("action-v031")
     direct_vm.value = 0
-    warp_to(direct_vm, "2026-08-24T00:05:01Z")
+    warp_to(direct_vm, "2026-08-24T06:00:01Z")
 
 
 def test_v031_consumer_cannot_equal_challenge_sink(direct_vm, direct_deploy):
@@ -120,6 +120,25 @@ def test_v031_invalid_counterevidence_can_still_be_slashed(direct_vm, direct_dep
     assert action["challenge_settlement"] == "slashed"
 
 
+def test_v040_unavailable_challenger_artifact_at_deadline_is_slashed(direct_vm, direct_deploy, direct_alice):
+    contract = deploy(direct_vm, direct_deploy)
+    create(contract)
+    propose(contract)
+    direct_vm._helix_module.observe = lambda *args: approved()
+    contract.review_action("action-v031")
+    direct_vm.value = BOND
+    with direct_vm.prank(direct_alice):
+        contract.challenge_action("action-v031", "https://example.com/counter", "0x" + "11" * 32, "counter")
+    direct_vm.value = 0
+    warp_to(direct_vm, "2026-08-24T12:00:01Z")
+    contract.settle_expired_challenge("action-v031")
+    action = contract.get_action("action-v031")
+    assert action["status"] == "reviewed"
+    assert action["verdict"] == "approved"
+    assert action["challenge_bond_held"] == "0"
+    assert action["challenge_settlement"] == "slashed"
+
+
 def test_v031_early_closed_challenge_cancellation_releases_capacity(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
     create(contract)
@@ -139,5 +158,26 @@ def test_v031_early_closed_challenge_cancellation_releases_capacity(direct_vm, d
 def test_v031_capacity_metadata_matches_enforced_limits(direct_vm, direct_deploy):
     contract = deploy(direct_vm, direct_deploy)
     info = contract.get_info()
-    assert info["version"] == "0.3.1"
+    assert info["version"] == "0.4.0"
     assert info["capacity"] == {"delegations": 128, "open_actions_per_delegation": 32}
+
+
+def test_v040_window_floor_and_expiry_guard(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy)
+    owner = contract.get_info()["owner"]
+    with direct_vm.expect_revert("Invalid delegation configuration"):
+        contract.create_delegation("too-short", owner, "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 21599)
+    contract.create_delegation("exact-floor", owner, "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 21600)
+    with direct_vm.expect_revert("Invalid delegation configuration"):
+        contract.create_delegation("expires-too-soon", owner, "r", "p", "c", "e", "https://example.com/base", BASELINE, 1787551200, BOND, 21600)
+
+
+def test_v040_action_ids_are_namespaced_by_delegation(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy)
+    owner = contract.get_info()["owner"]
+    contract.create_delegation("namespace-a", owner, "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 21600)
+    contract.create_delegation("namespace-b", owner, "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 21600)
+    contract.propose_action("same-id", "namespace-a", "https://example.com/manifest-a", MANIFEST, "https://example.com/evidence-a", EVIDENCE, "a")
+    contract.propose_action("same-id", "namespace-b", "https://example.com/manifest-b", MANIFEST, "https://example.com/evidence-b", EVIDENCE, "b")
+    assert contract.get_action("same-id", "namespace-a")["delegation_id"] == "namespace-a"
+    assert contract.get_action("same-id", "namespace-b")["delegation_id"] == "namespace-b"

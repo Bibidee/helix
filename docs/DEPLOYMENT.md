@@ -1,6 +1,10 @@
 # Deployment evidence
 
-## Helix v0.3.1 — CURRENT SOURCE-MATCHED DEPLOYMENT
+## Helix v0.4.0 — NOT YET DEPLOYED
+
+The working source is v0.4.0. It keeps one intentionally bounded lifetime challenge round, adds the six-hour minimum window and expiry guard, slashes unresolved challenger-supplied counterevidence at timeout, and namespaces action IDs by delegation. A fresh deployment and source-parity proof are required. No v0.4.0 address or live verdict is claimed yet.
+
+## Helix v0.3.1 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
 
 The current repository source contains material security fixes beyond the historical v0.3.0 deployment. The final v0.3.1 deployment is [`0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2`](https://explorer-studio.genlayer.com/address/0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2), deployment transaction [`0x265c3a83f74b879ce054cee68e6740b1ed7173d34ed96b09a301738281318683`](https://explorer-studio.genlayer.com/tx/0x265c3a83f74b879ce054cee68e6740b1ed7173d34ed96b09a301738281318683), source commit `c36c62ca2392c8ff0564ee2958f4a4c4e2fc2f3c`, local/retrieved size 29,950 bytes, SHA-256 `aad454d0b315879940802dfdf3659ebe74b2c1eb18eae246cebf296f2f462684`, exact parity `YES`. Deployment consensus was `MAJORITY_AGREE` with leader GenVM `SUCCESS`.
 
