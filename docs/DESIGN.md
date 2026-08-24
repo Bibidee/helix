@@ -4,7 +4,7 @@ Helix answers one precise question: **does this exact proposed action belong ins
 
 The deterministic delegation record binds an owner, delegate, resource identifier, purpose, constraints, exclusions, expiry, challenge configuration, and a SHA-256-pinned baseline policy. An action binds a SHA-256-pinned textual action manifest and supporting evidence. Validators independently retrieve and verify committed bytes before semantic classification.
 
-The initial semantic dimensions will be scope fit, authority expansion, value/risk exposure, temporal compliance, and reversibility. Approval requires exact categorical agreement on these dimensions plus a deterministic confidence threshold. Rationale remains explanatory only.
+Validators independently classify scope fit, authority expansion, value/risk exposure, temporal compliance, and reversibility. Deterministic logic derives `approved`, `blocked`, or `inconclusive` from that classification. Approval requires the complete safe tuple (`yes`, `no`, `no`, `yes`, `yes`) and confidence at or above the deterministic threshold. Consensus compares only this derived verdict: diagnostic-field and rationale differences cannot prevent validators that independently reach `blocked` from agreeing, while `approved` never equals either `blocked` or `inconclusive`.
 
 The contract will use one internal actionability predicate for the view and consumption write path. It will require: active delegation, unpaused contract, reviewed approval, no unresolved challenge bond, delegation unexpired, finalization delay elapsed, and unconsumed action.
 

@@ -1,6 +1,10 @@
 # Deployment evidence
 
-## Helix v0.1.3 — CURRENT
+## Helix v0.1.4 — DEPLOYMENT CANDIDATE
+
+v0.1.4 changes only semantic consensus equivalence: validators compare the deterministic derived verdict, while the complete strict approval tuple is unchanged. It is not a current deployment until a fresh StudioNet deployment, finalized live evidence, and retrieved-source parity are recorded.
+
+## Helix v0.1.3 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
 
 - Contract: [`0x92eD41aFC028a67857BDAF7625378E3aF431d620`](https://explorer-studio.genlayer.com/address/0x92eD41aFC028a67857BDAF7625378E3aF431d620)
 - Deployment transaction: [`0x1b7398502fd0fee14adffc28c04af09e6b12553cf1c5f9c54103af34227082c2`](https://explorer-studio.genlayer.com/tx/0x1b7398502fd0fee14adffc28c04af09e6b12553cf1c5f9c54103af34227082c2)
@@ -30,4 +34,4 @@ Challenge, refund, blocked, inconclusive, closure, expiry, and replay protection
 - Local/deployed SHA-256: `40a561e42421ec6e4f13d63748c4b5c64849893f86a1bab023f35a6c1e4a0c89`
 - Parity: retrieved source is an exact byte-for-byte match (23,331 characters).
 
-v0.1.1 and v0.1.2 were superseded release candidates and are not presented as current deployments. The v0.1.3 deployment above is current; it makes a successful single challenged re-review final immediately while preserving deterministic closure/expiry refunds.
+v0.1.1 and v0.1.2 were superseded release candidates and are not presented as current deployments. v0.1.3 remains historical evidence; it makes a successful single challenged re-review final immediately while preserving deterministic closure/expiry refunds.

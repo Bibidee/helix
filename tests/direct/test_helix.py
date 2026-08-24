@@ -35,7 +35,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.1.3"
+    assert contract.get_info()["version"] == "0.1.4"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -171,3 +171,40 @@ def test_access_input_and_zero_address_guards(direct_vm, direct_deploy):
     with direct_vm.expect_revert("Blocked manifest_url"):
         create(contract)
         contract.propose_action("local", "delegation-1", "https://localhost/a", MANIFEST, "https://example.com/e", EVIDENCE, "x")
+
+
+def analysis(**overrides):
+    value = {"scope_fit": "yes", "authority_expansion": "no", "risk_exposure": "no", "temporal_compliance": "yes", "reversibility": "yes", "confidence": 90, "rationale": "Complete bounded evaluation with a clear safety conclusion."}
+    value.update(overrides)
+    return value
+
+
+def test_equivalence_uses_derived_verdict_for_different_blocking_dimensions(direct_vm, direct_deploy):
+    deploy(direct_vm, direct_deploy); module = direct_vm._helix_module
+    left = analysis(scope_fit="no", authority_expansion="yes", risk_exposure="yes", reversibility="no", confidence=95, rationale="Outside scope and expands authority.")
+    right = analysis(scope_fit="no", authority_expansion="yes", risk_exposure="no", reversibility="unclear", confidence=76, rationale="Outside scope and authority is expanded.")
+    assert module.verdict(left) == module.BLOCKED == module.verdict(right)
+    assert module.equivalent(left, right)
+
+
+def test_equivalence_preserves_approval_boundaries_and_ignores_safe_diagnostics(direct_vm, direct_deploy):
+    deploy(direct_vm, direct_deploy); module = direct_vm._helix_module
+    approved_low = analysis(confidence=75, rationale="Safe at the minimum deterministic confidence.")
+    approved_high = analysis(confidence=100, rationale="Safe at a higher independent confidence.")
+    blocked = analysis(risk_exposure="yes", rationale="Excessive value exposure blocks the action.")
+    inconclusive = analysis(confidence=74, rationale="The safe tuple lacks sufficient confidence.")
+    assert module.equivalent(approved_low, approved_high)
+    assert not module.equivalent(approved_low, blocked)
+    assert not module.equivalent(approved_low, inconclusive)
+    assert not module.equivalent(blocked, {"scope_fit": "no"})
+
+
+def test_unsafe_evidence_consensus_regression_blocks_when_diagnostics_differ(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    module = direct_vm._helix_module
+    leader = analysis(scope_fit="no", authority_expansion="yes", risk_exposure="yes", reversibility="no", confidence=95, rationale="Unsafe manifest requests permanent administrative withdrawal authority.")
+    validator = analysis(scope_fit="no", authority_expansion="yes", risk_exposure="no", reversibility="unclear", confidence=82, rationale="Unsafe manifest is outside the constrained payment delegation.")
+    assert module.equivalent(leader, validator)
+    direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": validator}
+    contract.review_action("action-1")
+    assert contract.get_action("action-1")["verdict"] == "blocked"

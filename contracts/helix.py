@@ -1,4 +1,4 @@
-# v0.1.3
+# v0.1.4
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 """Helix: semantic, hash-bound delegation-scope attestations."""
 
@@ -214,8 +214,7 @@ def verdict(value: dict) -> str:
 def equivalent(left, right) -> bool:
     if not valid_analysis(left) or not valid_analysis(right): return False
     left, right = canonical_analysis(left), canonical_analysis(right)
-    keys = ("scope_fit", "authority_expansion", "risk_exposure", "temporal_compliance", "reversibility")
-    return all(left[key] == right[key] for key in keys) and verdict(left) == verdict(right)
+    return verdict(left) == verdict(right)
 
 
 def fetch_verified(value_url: str, expected_hash: str) -> str:
@@ -415,4 +414,4 @@ class Helix(gl.Contract):
 
     @gl.public.view
     def get_info(self) -> dict:
-        return {"name": "Helix", "version": "0.1.3", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}
+        return {"name": "Helix", "version": "0.1.4", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}
