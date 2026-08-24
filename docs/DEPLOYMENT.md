@@ -1,8 +1,8 @@
 # Deployment evidence
 
-## Helix v0.3.1 — RELEASE CANDIDATE, NOT YET DEPLOYED
+## Helix v0.3.1 — CURRENT SOURCE-MATCHED DEPLOYMENT
 
-The current repository source contains material security fixes beyond the source-matched v0.3.0 deployment. Do not present the v0.3.0 address as v0.3.1 evidence.
+The current repository source contains material security fixes beyond the historical v0.3.0 deployment. The final v0.3.1 deployment is [`0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2`](https://explorer-studio.genlayer.com/address/0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2), deployment transaction [`0x265c3a83f74b879ce054cee68e6740b1ed7173d34ed96b09a301738281318683`](https://explorer-studio.genlayer.com/tx/0x265c3a83f74b879ce054cee68e6740b1ed7173d34ed96b09a301738281318683), source commit `c36c62ca2392c8ff0564ee2958f4a4c4e2fc2f3c`, local/retrieved size 29,950 bytes, SHA-256 `aad454d0b315879940802dfdf3659ebe74b2c1eb18eae246cebf296f2f462684`, exact parity `YES`. Deployment consensus was `MAJORITY_AGREE` with leader GenVM `SUCCESS`.
 
 v0.3.1 changes include:
 
@@ -13,7 +13,7 @@ v0.3.1 changes include:
 - `get_info()` reports the actual enforced capacity model;
 - finalized source retrieval uses the current `gen_getContractCode` request shape.
 
-Required final release evidence: Python 3.12 preflight, finalized deployment/GenVM success, full source commit SHA, local and retrieved SHA-256 parity, finalized safe `APPROVED`, finalized clearly unsafe `BLOCKED`, and finalized challenge/settlement proof. No v0.3.1 on-chain outcome is claimed here yet.
+Final-deployment live delegation/proposal/review transactions submitted so far: delegation `0x550d4ec9149638df67cbd156c469e91225f75cb6d51ae7e8278954ec363fca69`, safe proposal `0xe65ca3cb2af2016776d439fbc3799c99c01d2ae2a64a354d27a407b00fca2a17`, safe review `0xd60a5b8d9588aac16f634f521abb05182fda921d4d1c8d3755197dbd3beb9fe0`. Studionet state reads for the review are currently unavailable; no safe verdict or later live path is claimed until finalized state is observable.
 
 ## Helix v0.3.0 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
 

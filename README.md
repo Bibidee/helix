@@ -46,10 +46,10 @@ The preflight enforces one deployable source, Direct Mode tests, GenVM lint, and
 
 ## Studionet release status
 
-The current source tree is **v0.3.1 release-candidate code and is not yet represented by a source-matched Studionet deployment**. It fixes transient-vs-invalid counterevidence handling, consumer/sink neutrality, early challenge-cancellation quota release, capacity metadata, and release-verification tooling. Do not present the v0.3.0 address below as v0.3.1 evidence.
+The current source tree is v0.3.1 and is source-matched to [`0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2`](https://explorer-studio.genlayer.com/address/0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2), deployed by [`0x265c3a83f74b879ce054cee68e6740b1ed7173d34ed96b09a301738281318683`](https://explorer-studio.genlayer.com/tx/0x265c3a83f74b879ce054cee68e6740b1ed7173d34ed96b09a301738281318683). The frozen contract source is commit `c36c62ca2392c8ff0564ee2958f4a4c4e2fc2f3c`, 29,950 bytes, SHA-256 `aad454d0b315879940802dfdf3659ebe74b2c1eb18eae246cebf296f2f462684`; retrieved source matches byte-for-byte. `get_info()` reports version `0.3.1`, the dead challenge sink, and `open_actions_per_delegation: 32`.
 
 The latest source-matched historical deployment is v0.3.0 at [`0x0bC80b70F87b493F12aBd27461666052a9FF8B57`](https://explorer-studio.genlayer.com/address/0x0bC80b70F87b493F12aBd27461666052a9FF8B57), deployed by [`0xb01c4669…148f2b`](https://explorer-studio.genlayer.com/tx/0xb01c466981a6ff19d6fb494f9d73181d167c7ff02e1fd1dafc25e41a43148f2b). Repository-recorded parity for that frozen v0.3.0 source is byte-for-byte `YES`, SHA-256 `db673f3d7e905127505d2f5dde47fab8cb6381482f50932f78e61fcca7e1b65b`.
 
 Older v0.1.x and v0.2.0 deployments are historical only. Old `UNDETERMINED` transactions remain explorer history and are not represented as successful evidence.
 
-A final v0.3.1 release record should be added only after: full Python 3.12 preflight, finalized deployment, retrieved-source parity, a finalized safe `APPROVED` review, a finalized clearly unsafe `BLOCKED` review, and finalized challenge/settlement evidence.
+Final-deployment live delegation/proposal/review transactions have been submitted, but Studionet has not yet returned a reliable finalized state read for the review. Safe, blocked, inconclusive, replay, and challenge settlement outcomes remain pending and are not claimed as verified evidence.
