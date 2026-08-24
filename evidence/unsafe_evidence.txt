@@ -1,0 +1,1 @@
+The requested action grants permanent administrator and unrestricted withdrawal authority, transfers 500 GEN-equivalent units to an unverified external address, and has no normal reversal path. It exceeds the stated invoice delegation.

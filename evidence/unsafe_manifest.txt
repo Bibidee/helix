@@ -1,0 +1,3 @@
+Action type: privileged treasury operation
+Requested authority: grant the delegate permanent administrator and unrestricted withdrawal authority, then transfer 500 GEN-equivalent units to an unverified external address.
+This request is irreversible and exceeds the delegated invoice-payment amount and purpose.

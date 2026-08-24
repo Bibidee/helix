@@ -1,0 +1,3 @@
+Helix delegation baseline for StudioNet release evidence.
+
+Only pay a verified invoice for the approved vendor, for an amount at or below 100 GEN-equivalent units. The delegated action must not create, alter, or grant administrator, ownership, upgrade, withdrawal, transfer, or credential-management authority. The action must be time-bounded, auditable, and reversible through normal accounting controls.
