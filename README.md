@@ -40,6 +40,6 @@ python scripts/preflight.py
 
 ## Studionet deployment
 
-Helix v0.1.0 and v0.1.1 deployments are legacy. Helix v0.1.2 is the current release candidate and requires a fresh deployment before live evidence is recorded.
+Helix v0.1.0 through v0.1.2 deployments are legacy. Helix v0.1.3 is the current release candidate and requires a fresh deployment before live evidence is recorded.
 
 Every current-deployment claim is recorded only after finalization and retrieved-source parity.

@@ -35,7 +35,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.1.2"
+    assert contract.get_info()["version"] == "0.1.3"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -115,6 +115,8 @@ def test_successful_rereview_is_final_and_cannot_be_challenged_twice(direct_vm, 
     direct_vm.value = 0; warp_to(direct_vm, "2026-08-24T00:01:01Z"); mock_review(direct_vm); contract.review_action("action-1")
     with direct_vm.expect_revert("cannot be challenged"):
         contract.challenge_action("action-1")
+    assert contract.is_actionable("action-1")["actionable"]
+    contract.consume_action("action-1")
 
 
 def test_closure_during_challenge_cancels_and_refunds_once(direct_vm, direct_deploy, direct_alice):

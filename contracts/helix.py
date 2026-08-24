@@ -1,4 +1,4 @@
-# v0.1.2
+# v0.1.3
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 """Helix: semantic, hash-bound delegation-scope attestations."""
 
@@ -279,7 +279,8 @@ class Helix(gl.Contract):
         _Recipient(recipient).emit_transfer(value=amount)
 
     def _actionable(self, action: Action, delegation: Delegation) -> bool:
-        return not self.paused and delegation.status == ACTIVE and timestamp() < int(delegation.expires_at) and action.status == REVIEWED and action.verdict == APPROVED and int(action.challenge_bond_held) == 0 and timestamp() >= int(action.reviewed_at) + int(delegation.challenge_window)
+        finalized = action.challenge_round_completed or timestamp() >= int(action.reviewed_at) + int(delegation.challenge_window)
+        return not self.paused and delegation.status == ACTIVE and timestamp() < int(delegation.expires_at) and action.status == REVIEWED and action.verdict == APPROVED and int(action.challenge_bond_held) == 0 and finalized
 
     @gl.public.write
     def set_paused(self, value: bool) -> None:
@@ -414,4 +415,4 @@ class Helix(gl.Contract):
 
     @gl.public.view
     def get_info(self) -> dict:
-        return {"name": "Helix", "version": "0.1.2", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}
+        return {"name": "Helix", "version": "0.1.3", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}
