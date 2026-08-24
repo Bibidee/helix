@@ -2,7 +2,7 @@
 
 ## Helix v0.3.0 — CURRENT SOURCE-MATCHED DEPLOYMENT
 
-The frozen v0.3.0 source is deployed at [`0xde756eceFbE9e5BAD4823E702f68fc0F30c494Eb`](https://explorer-studio.genlayer.com/address/0xde756eceFbE9e5BAD4823E702f68fc0F30c494Eb) by [`0xe1553414ec2f2c5fbccaf1c0a2d4aef994a0a5e5dcac116d8c2b7c66c4973a32`](https://explorer-studio.genlayer.com/tx/0xe1553414ec2f2c5fbccaf1c0a2d4aef994a0a5e5dcac116d8c2b7c66c4973a32). `get_info()` reports version `0.3.0`; deployment consensus was `MAJORITY_AGREE` with leader GenVM `SUCCESS`. Source commit: `aeebb9a`. Local and retrieved source are both 28,725 bytes with SHA-256 `7d08e9952973b3ea10942f8a1164fd0d4b210a9f3a77af3b6494427ac773ee9d`; parity is byte-for-byte `YES`.
+The frozen v0.3.0 source is deployed at [`0x0bC80b70F87b493F12aBd27461666052a9FF8B57`](https://explorer-studio.genlayer.com/address/0x0bC80b70F87b493F12aBd27461666052a9FF8B57) by [`0xb01c466981a6ff19d6fb494f9d73181d167c7ff02e1fd1dafc25e41a43148f2b`](https://explorer-studio.genlayer.com/tx/0xb01c466981a6ff19d6fb494f9d73181d167c7ff02e1fd1dafc25e41a43148f2b). Deployment consensus was `MAJORITY_AGREE` with leader GenVM `SUCCESS`. Source commit: `7fadc53`. Local and retrieved source are both 28,684 bytes with SHA-256 `db673f3d7e905127505d2f5dde47fab8cb6381482f50932f78e61fcca7e1b65b`; parity is byte-for-byte `YES`.
 
 ## Helix v0.2.0 — HISTORICAL DEPLOYMENT
 
