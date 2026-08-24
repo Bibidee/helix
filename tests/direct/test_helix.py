@@ -35,7 +35,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.3.0"
+    assert contract.get_info()["version"] == "0.3.1"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
