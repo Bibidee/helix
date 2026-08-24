@@ -44,7 +44,7 @@ python scripts/preflight.py
 
 Helix v0.1.0 is the legacy documented deployment. v0.1.1 and v0.1.2 were superseded release candidates. v0.1.3 is the current historical source-matched deployment: [`0x92eD41aFC028a67857BDAF7625378E3aF431d620`](https://explorer-studio.genlayer.com/address/0x92eD41aFC028a67857BDAF7625378E3aF431d620), deployed by [transaction `0x1b7398…7082c2`](https://explorer-studio.genlayer.com/tx/0x1b7398502fd0fee14adffc28c04af09e6b12553cf1c5f9c54103af34227082c2). It finalized with GenVM `SUCCESS`; its retrieved source is byte-for-byte identical to SHA-256 `087f3220fa919a5936f046500a6a4a94c4d2dc726f008ac650d5481c4369c60a`.
 
-v0.1.4 is historical. v0.2.0 is historical and superseded by the unreleased v0.3.0 hardening source. v0.3.0 corrects unclear semantic dimensions to `INCONCLUSIVE`, derives replay identity from `delegation_id | manifest_hash`, and treats invalid challenger counterevidence as a slashed challenge rather than a refunded veto. A fresh v0.3.0 deployment is required.
+v0.1.4 and v0.2.0 are historical. v0.3.0 is the current source-matched deployment at [`0xde756eceFbE9e5BAD4823E702f68fc0F30c494Eb`](https://explorer-studio.genlayer.com/address/0xde756eceFbE9e5BAD4823E702f68fc0F30c494Eb). It corrects unclear semantic dimensions to `INCONCLUSIVE`, derives replay identity from `delegation_id | manifest_hash`, and treats invalid challenger counterevidence as a slashed challenge rather than a refunded veto. The deployed source matches SHA-256 `7d08e9952973b3ea10942f8a1164fd0d4b210a9f3a77af3b6494427ac773ee9d` byte-for-byte.
 
 The following safe-path links are historical v0.1.4 evidence and do not prove v0.2.0 deployment. The v0.2.0 release record will be added only after a fresh finalized deployment and source-parity proof.
 

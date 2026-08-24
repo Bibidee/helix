@@ -1,8 +1,8 @@
 # Deployment evidence
 
-## Helix v0.3.0 — NOT YET DEPLOYED
+## Helix v0.3.0 — CURRENT SOURCE-MATCHED DEPLOYMENT
 
-The source now contains material v0.3.0 security changes. The v0.2.0 deployment below is historical and must not be presented as the final source-matched deployment. A fresh deployment is required after the release gate passes.
+The frozen v0.3.0 source is deployed at [`0xde756eceFbE9e5BAD4823E702f68fc0F30c494Eb`](https://explorer-studio.genlayer.com/address/0xde756eceFbE9e5BAD4823E702f68fc0F30c494Eb) by [`0xe1553414ec2f2c5fbccaf1c0a2d4aef994a0a5e5dcac116d8c2b7c66c4973a32`](https://explorer-studio.genlayer.com/tx/0xe1553414ec2f2c5fbccaf1c0a2d4aef994a0a5e5dcac116d8c2b7c66c4973a32). `get_info()` reports version `0.3.0`; deployment consensus was `MAJORITY_AGREE` with leader GenVM `SUCCESS`. Source commit: `aeebb9a`. Local and retrieved source are both 28,725 bytes with SHA-256 `7d08e9952973b3ea10942f8a1164fd0d4b210a9f3a77af3b6494427ac773ee9d`; parity is byte-for-byte `YES`.
 
 ## Helix v0.2.0 — HISTORICAL DEPLOYMENT
 
