@@ -33,6 +33,8 @@ Helix is a reusable primitive, not an execution engine or frontend. Downstream s
 
 The package includes Direct Mode adversarial tests, portable preflight, GenVM lint discovery, and ABI schema generation. Tests are outside `contracts/`, so test-only imports cannot be detected as deployable contract sources.
 
+Use Python 3.12 for the pinned GenLayer tooling; the CI release gate uses the same version. A Python 3.11 environment can fail before test collection because the installed SDK requires newer standard-library typing support.
+
 ```text
 pytest tests/direct -q
 python scripts/preflight.py
