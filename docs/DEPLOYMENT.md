@@ -1,10 +1,17 @@
 # Deployment evidence
 
-## Helix v0.2.0 — NOT YET DEPLOYED
+## Helix v0.2.0 — DEPLOYED, LIVE EVIDENCE IN PROGRESS
 
-The local v0.2.0 source is not represented by either historical Studionet address below. Deployment is intentionally pending the full Python 3.12 preflight, lint/schema gates, commit, and fresh source-parity evidence. Do not label a v0.2.0 live transaction as current until those records are added here.
+The v0.2.0 source is deployed at [`0x102D10244eF839119950b752aD67Fbf001123ef7`](https://explorer-studio.genlayer.com/address/0x102D10244eF839119950b752aD67Fbf001123ef7) by [`0x0225fd85059c8d5d4153d056dce41cd7116c388248cd78a0e6692632187752ba`](https://explorer-studio.genlayer.com/tx/0x0225fd85059c8d5d4153d056dce41cd7116c388248cd78a0e6692632187752ba). The deployment finalized with `MAJORITY_AGREE` and GenVM `SUCCESS`. Local source SHA-256 is `d8de2e855512955f9580fb10cf78317d378923d81ba3cc366662cfb73fd7fb17` (27,703 bytes). Retrieved-source hash verification is still pending a stable RPC response; the CLI source retrieval showed the v0.2.0 source but parity is not claimed until the raw response can be hashed.
 
-Required release evidence: deployment transaction and address, finalized GenVM success, source commit, local and retrieved SHA-256, and finalized safe, unsafe, and challenge/settlement transactions.
+Required release evidence: deployment transaction and address, finalized GenVM success, source commit, local and retrieved SHA-256, and finalized safe, unsafe, and challenge/settlement transactions. `scripts/verify_source_parity.mjs` performs the raw response hash comparison when RPC is available.
+
+### v0.2.0 live transactions
+
+- Delegation creation: [`0x2c138991e50175fcd9d20856371dd3541f886c62aa9d9d7821aabc975a2705c3`](https://explorer-studio.genlayer.com/tx/0x2c138991e50175fcd9d20856371dd3541f886c62aa9d9d7821aabc975a2705c3), finalized `MAJORITY_AGREE` / `SUCCESS`.
+- Safe proposal: [`0xa4877f8dd8cce1df1c761084ec03502868776aa40d4187e378b9e11a28aba84e`](https://explorer-studio.genlayer.com/tx/0xa4877f8dd8cce1df1c761084ec03502868776aa40d4187e378b9e11a28aba84e), accepted submission.
+- Safe review: [`0x4d4e52bcc85ef504ec9daba02dcc153ac3d49f70a341a8177ab75e72c4a16bdc`](https://explorer-studio.genlayer.com/tx/0x4d4e52bcc85ef504ec9daba02dcc153ac3d49f70a341a8177ab75e72c4a16bdc), finalized; on-chain action state is `reviewed` / `approved` at confidence 87.
+- Unsafe proposal: [`0xabb29041ff8447b5157af95357edd284c7469c8f6924b71f91c4cb4878c27ac4`](https://explorer-studio.genlayer.com/tx/0xabb29041ff8447b5157af95357edd284c7469c8f6924b71f91c4cb4878c27ac4), accepted submission. Unsafe review and challenge-path receipts remain pending stable RPC confirmation and are not claimed here.
 
 ## Helix v0.1.4 — HISTORICAL DEPLOYMENT
 
