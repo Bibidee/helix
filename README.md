@@ -40,6 +40,8 @@ python scripts/preflight.py
 
 ## Studionet deployment
 
-Helix v0.1.0 through v0.1.2 deployments are legacy. Helix v0.1.3 is the current release candidate and requires a fresh deployment before live evidence is recorded.
+Helix v0.1.0 through v0.1.2 deployments are legacy. The current v0.1.3 deployment is [`0x92eD41aFC028a67857BDAF7625378E3aF431d620`](https://explorer-studio.genlayer.com/address/0x92eD41aFC028a67857BDAF7625378E3aF431d620), deployed by [transaction `0x1b7398…7082c2`](https://explorer-studio.genlayer.com/tx/0x1b7398502fd0fee14adffc28c04af09e6b12553cf1c5f9c54103af34227082c2). It finalized with GenVM `SUCCESS`; the retrieved source is byte-for-byte identical to the committed source, SHA-256 `087f3220fa919a5936f046500a6a4a94c4d2dc726f008ac650d5481c4369c60a`.
+
+Verified safe-path evidence: [create delegation](https://explorer-studio.genlayer.com/tx/0xb81f5b0200a1aae055f0d2f26b90f59d2f661d2281fc352a7a38e58a9a1a8448), [propose](https://explorer-studio.genlayer.com/tx/0x9c4d73f0a3c6d59d5c3683b0a1837300edac2e60d214ef821161621d77ec6270), [semantic review](https://explorer-studio.genlayer.com/tx/0x61294e91ad7651d9995bd2d951ff2792bbe0e071224ecf28c065cf9801363911), and [one-time consumption](https://explorer-studio.genlayer.com/tx/0x546c3f101609d119fa694d556f206785fe681ff3d177910efcb2a97b813a653c). The finalized review produced `APPROVED` at confidence 91, then the action became actionable after its initial 60-second challenge window and was consumed.
 
 Every current-deployment claim is recorded only after finalization and retrieved-source parity.
