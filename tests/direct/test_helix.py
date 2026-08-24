@@ -35,7 +35,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.1.0"
+    assert contract.get_info()["version"] == "0.1.1"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -78,6 +78,11 @@ def test_unverified_or_non_text_artefacts_fail_closed(direct_vm, direct_deploy):
     with pytest.raises(ValueError, match="hash_mismatch"): module.fetch_verified(target, "0x" + "00" * 32)
     direct_vm.clear_mocks(); direct_vm.mock_web(target, {"status": 200, "body": b"\xff"})
     with pytest.raises(ValueError, match="invalid_utf8"): module.fetch_verified(target, module.content_hash(b"\xff"))
+
+
+def test_cli_numeric_hash_is_normalized_to_the_same_commitment(direct_vm, direct_deploy):
+    deploy(direct_vm, direct_deploy); module = direct_vm._helix_module
+    assert module.canonical_hash(int(MANIFEST, 16)) == MANIFEST
 
 
 def test_challenge_is_a_single_protective_round_not_a_slot_race(direct_vm, direct_deploy, direct_alice, direct_bob):

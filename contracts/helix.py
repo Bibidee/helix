@@ -1,4 +1,4 @@
-# v0.1.0
+# v0.1.1
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 """Helix: semantic, hash-bound delegation-scope attestations."""
 
@@ -124,7 +124,13 @@ def content_hash(value: bytes) -> str:
 
 
 def canonical_hash(value) -> str:
-    result = str(value).strip().lower()
+    if isinstance(value, str):
+        result = value.strip().lower()
+    else:
+        try:
+            result = f"0x{int(value):064x}"
+        except (TypeError, ValueError, OverflowError):
+            raise gl.vm.UserError(f"{EXPECTED} Invalid artefact hash")
     if not re.match(r"^0x[0-9a-f]{64}$", result):
         raise gl.vm.UserError(f"{EXPECTED} Invalid artefact hash")
     return result
@@ -399,4 +405,4 @@ class Helix(gl.Contract):
 
     @gl.public.view
     def get_info(self) -> dict:
-        return {"name": "Helix", "version": "0.1.0", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}
+        return {"name": "Helix", "version": "0.1.1", "owner": self.owner.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "actions": MAX_ACTIONS}}

@@ -40,6 +40,6 @@ python scripts/preflight.py
 
 ## Studionet deployment
 
-Helix v0.1.0 is deployed at [`0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732`](https://explorer-studio.genlayer.com/address/0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732). Deployment transaction [`0x92b9…cb4b0a`](https://explorer-studio.genlayer.com/tx/0x92b9cab4228f684f5d7406869b5447f801f59dca49da8aa3f4bbf271f8cb4b0a) finalized with majority agreement and GenVM execution `SUCCESS`.
+Helix v0.1.0 at [`0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732`](https://explorer-studio.genlayer.com/address/0x21acd955Fe3E87EC642C6d3a0aE8a46787AD0732) is a legacy deployment. It is source-matched but cannot accept the official CLI’s numeric representation of a `0x…` SHA-256 commitment. Helix v0.1.1 adds equivalent deterministic normalization and requires a fresh deployment.
 
-The deployed source was retrieved independently after finalization. Its SHA-256 and the local `contracts/helix.py` SHA-256 are both `40a561e42421ec6e4f13d63748c4b5c64849893f86a1bab023f35a6c1e4a0c89`; the 23,331-character sources match byte-for-byte.
+The v0.1.0 source was retrieved independently after finalization. Its SHA-256 and then-local source SHA-256 were both `40a561e42421ec6e4f13d63748c4b5c64849893f86a1bab023f35a6c1e4a0c89`; the 23,331-character sources matched byte-for-byte.
