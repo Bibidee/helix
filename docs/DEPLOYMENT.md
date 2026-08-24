@@ -1,6 +1,10 @@
 # Deployment evidence
 
-## Helix v0.2.0 — DEPLOYED, LIVE EVIDENCE IN PROGRESS
+## Helix v0.3.0 — NOT YET DEPLOYED
+
+The source now contains material v0.3.0 security changes. The v0.2.0 deployment below is historical and must not be presented as the final source-matched deployment. A fresh deployment is required after the release gate passes.
+
+## Helix v0.2.0 — HISTORICAL DEPLOYMENT
 
 The v0.2.0 source is deployed at [`0x102D10244eF839119950b752aD67Fbf001123ef7`](https://explorer-studio.genlayer.com/address/0x102D10244eF839119950b752aD67Fbf001123ef7) by [`0x0225fd85059c8d5d4153d056dce41cd7116c388248cd78a0e6692632187752ba`](https://explorer-studio.genlayer.com/tx/0x0225fd85059c8d5d4153d056dce41cd7116c388248cd78a0e6692632187752ba). The deployment finalized with `MAJORITY_AGREE` and GenVM `SUCCESS`. Local source SHA-256 is `d8de2e855512955f9580fb10cf78317d378923d81ba3cc366662cfb73fd7fb17` (27,703 bytes). Retrieved-source hash verification is still pending a stable RPC response; the CLI source retrieval showed the v0.2.0 source but parity is not claimed until the raw response can be hashed.
 

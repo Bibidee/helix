@@ -1,4 +1,4 @@
-# Helix design
+# Helix design (v0.3.0)
 
 Helix answers one precise question: **does this exact proposed action belong inside this exact delegation?** It does not execute the action.
 

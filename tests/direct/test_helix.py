@@ -35,7 +35,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.2.0"
+    assert contract.get_info()["version"] == "0.3.0"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -112,7 +112,8 @@ def test_open_action_capacity_is_released_on_terminal_outcome(direct_vm, direct_
     contract = deploy(direct_vm, direct_deploy); create(contract)
     for index in range(2):
         action_id = f"capacity-{index}"
-        contract.propose_action(action_id, "delegation-1", "https://example.com/manifest", MANIFEST, "https://example.com/evidence", EVIDENCE, "Pay a verified invoice", f"nonce-{index}")
+        manifest_hash = MANIFEST if index == 0 else "0x" + "22" * 32
+        contract.propose_action(action_id, "delegation-1", "https://example.com/manifest", manifest_hash, "https://example.com/evidence", EVIDENCE, "Pay a verified invoice", f"nonce-{index}")
         direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": analysis(risk_exposure="yes", rationale="The action exceeds the delegation risk limit.")}
         contract.review_action(action_id)
     assert contract.get_delegation("delegation-1")["open_action_count"] == "0"
@@ -130,6 +131,13 @@ def test_challenge_is_a_single_protective_round_not_a_slot_race(direct_vm, direc
             contract.challenge_action("action-1")
     with direct_vm.expect_revert("not actionable"):
         contract.consume_action("action-1")
+
+
+def test_interested_party_cannot_capture_challenge_round(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    direct_vm.value = BOND
+    with direct_vm.expect_revert("Interested party"):
+        contract.challenge_action("action-1")
 
 
 def test_challenge_rereview_approval_slashes_to_neutral_sink(direct_vm, direct_deploy, direct_alice):
@@ -252,6 +260,21 @@ def test_equivalence_preserves_approval_boundaries_and_ignores_safe_diagnostics(
     assert not module.equivalent(approved_low, blocked)
     assert not module.equivalent(approved_low, inconclusive)
     assert not module.equivalent(blocked, {"scope_fit": "no"})
+
+
+@pytest.mark.parametrize("field", ["scope_fit", "authority_expansion", "risk_exposure", "temporal_compliance", "reversibility"])
+def test_unclear_without_affirmative_unsafe_is_inconclusive(direct_vm, direct_deploy, field):
+    deploy(direct_vm, direct_deploy); module = direct_vm._helix_module
+    value = analysis(**{field: "unclear"})
+    assert module.verdict(value) == module.INCONCLUSIVE
+
+
+def test_manifest_hash_is_replay_identity_even_when_nonce_or_evidence_changes(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract)
+    contract.propose_action("identity-1", "delegation-1", "https://example.com/manifest", MANIFEST, "https://example.com/evidence", EVIDENCE, "Pay invoice", "nonce-a")
+    different_evidence = "0x" + "11" * 32
+    with direct_vm.expect_revert("commitment already registered"):
+        contract.propose_action("identity-2", "delegation-1", "https://example.com/manifest", MANIFEST, "https://example.com/other", different_evidence, "Pay invoice", "nonce-b")
 
 
 def test_unsafe_evidence_consensus_regression_blocks_when_diagnostics_differ(direct_vm, direct_deploy):
