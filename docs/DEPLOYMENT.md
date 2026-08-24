@@ -1,6 +1,12 @@
 # Deployment evidence
 
-## Helix v0.1.4 — DEPLOYMENT CANDIDATE
+## Helix v0.2.0 — NOT YET DEPLOYED
+
+The local v0.2.0 source is not represented by either historical Studionet address below. Deployment is intentionally pending the full Python 3.12 preflight, lint/schema gates, commit, and fresh source-parity evidence. Do not label a v0.2.0 live transaction as current until those records are added here.
+
+Required release evidence: deployment transaction and address, finalized GenVM success, source commit, local and retrieved SHA-256, and finalized safe, unsafe, and challenge/settlement transactions.
+
+## Helix v0.1.4 — HISTORICAL DEPLOYMENT
 
 v0.1.4 changes only semantic consensus equivalence: validators compare the deterministic derived verdict, while the complete strict approval tuple is unchanged. It is not a current deployment until a fresh StudioNet deployment, finalized live evidence, and retrieved-source parity are recorded.
 

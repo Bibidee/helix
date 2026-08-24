@@ -11,7 +11,7 @@ if len(CONTRACTS) != 1 or CONTRACTS[0].name != "helix.py":
     raise SystemExit("Expected exactly one deployable source: contracts/helix.py")
 source = CONTRACTS[0].read_text(encoding="utf-8")
 ast.parse(source)
-required = ["class Helix", "run_nondet_unsafe", "def fetch_verified", "hashlib.sha256", "challenge_bond_held", "challenge_round_completed", "finalized = action.challenge_round_completed", "settle_expired_challenge", "def is_actionable", "def canonical_hash(value)", '"version": "0.1.4"', "return verdict(left) == verdict(right)"]
+required = ["class Helix", "run_nondet_unsafe", "def fetch_verified", "hashlib.sha256", "challenge_bond_held", "challenge_round_completed", "finalized = action.challenge_round_completed", "settle_expired_challenge", "def is_actionable", "def canonical_hash(value)", '"version": "0.2.0"', "return verdict(left) == verdict(right)", "occurrence_nonce", "commitments", "MAX_OPEN_ACTIONS_PER_DELEGATION", "open_action_count", "capacity_released", "consumer: Address", "Consumer only", "MIN_WINDOW", "300, 30 * 24 * 60 * 60"]
 missing = [item for item in required if item not in source]
 if missing: raise SystemExit(f"Missing Helix safety invariants: {missing}")
 artifacts = ROOT / "artifacts"; artifacts.mkdir(exist_ok=True)

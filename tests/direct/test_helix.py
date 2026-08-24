@@ -20,7 +20,7 @@ def deploy(direct_vm, direct_deploy):
 
 
 def create(contract):
-    contract.create_delegation("delegation-1", contract.get_info()["owner"], "payments", "settle approved invoices", "amount <= 100; vendor allowlist", "no admin rights; no transfers outside invoice", "https://example.com/baseline", BASELINE, EXPIRY, BOND, 60)
+    contract.create_delegation("delegation-1", contract.get_info()["owner"], "payments", "settle approved invoices", "amount <= 100; vendor allowlist", "no admin rights; no transfers outside invoice", "https://example.com/baseline", BASELINE, EXPIRY, BOND, 300)
 
 
 def propose(direct_vm, contract):
@@ -35,7 +35,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.1.4"
+    assert contract.get_info()["version"] == "0.2.0"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -48,7 +48,7 @@ def test_delegate_proposes_safe_action_and_consumes_once(direct_vm, direct_deplo
     contract.review_action("action-1")
     assert contract.get_action("action-1")["verdict"] == "approved"
     assert not contract.is_actionable("action-1")["actionable"]
-    warp_to(direct_vm, "2026-08-24T00:01:01Z")
+    warp_to(direct_vm, "2026-08-24T00:05:01Z")
     contract.consume_action("action-1")
     with direct_vm.expect_revert("not actionable"):
         contract.consume_action("action-1")
@@ -85,6 +85,39 @@ def test_cli_numeric_hash_is_normalized_to_the_same_commitment(direct_vm, direct
     assert module.canonical_hash(int(MANIFEST, 16)) == MANIFEST
 
 
+def test_different_action_id_cannot_reuse_same_occurrence_commitment(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract)
+    contract.propose_action("action-1", "delegation-1", "https://example.com/manifest", MANIFEST, "https://example.com/evidence", EVIDENCE, "Pay a verified invoice", "invoice-001")
+    with direct_vm.expect_revert("commitment already registered"):
+        contract.propose_action("action-2", "delegation-1", "https://example.com/manifest", MANIFEST, "https://example.com/evidence", EVIDENCE, "Pay a verified invoice", "invoice-001")
+
+
+def test_consumer_authorization_is_separate_from_delegate(direct_vm, direct_deploy, direct_alice, direct_bob):
+    contract = deploy(direct_vm, direct_deploy)
+    owner = contract.get_info()["owner"]
+    contract.create_delegation("delegation-consumer", owner, "payments", "settle approved invoices", "amount <= 100", "no admin rights", "https://example.com/baseline", BASELINE, EXPIRY, BOND, 300, direct_alice)
+    contract.propose_action("action-consumer", "delegation-consumer", "https://example.com/manifest", MANIFEST, "https://example.com/evidence", EVIDENCE, "Pay a verified invoice")
+    mock_review(direct_vm)
+    contract.review_action("action-consumer")
+    warp_to(direct_vm, "2026-08-24T00:05:01Z")
+    with direct_vm.expect_revert("Consumer only"):
+        contract.consume_action("action-consumer")
+    with direct_vm.prank(direct_alice):
+        contract.consume_action("action-consumer")
+    assert contract.get_action("action-consumer")["status"] == "consumed"
+    assert contract.get_delegation("delegation-consumer")["consumer"].lower() == "0x" + direct_alice.hex()
+
+
+def test_open_action_capacity_is_released_on_terminal_outcome(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract)
+    for index in range(2):
+        action_id = f"capacity-{index}"
+        contract.propose_action(action_id, "delegation-1", "https://example.com/manifest", MANIFEST, "https://example.com/evidence", EVIDENCE, "Pay a verified invoice", f"nonce-{index}")
+        direct_vm._helix_module.observe = lambda *args: {"kind": "analysis", "result": analysis(risk_exposure="yes", rationale="The action exceeds the delegation risk limit.")}
+        contract.review_action(action_id)
+    assert contract.get_delegation("delegation-1")["open_action_count"] == "0"
+
+
 def test_challenge_is_a_single_protective_round_not_a_slot_race(direct_vm, direct_deploy, direct_alice, direct_bob):
     contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
     direct_vm.value = BOND
@@ -103,16 +136,38 @@ def test_challenge_rereview_approval_slashes_to_neutral_sink(direct_vm, direct_d
     contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
     direct_vm.value = BOND
     with direct_vm.prank(direct_alice): contract.challenge_action("action-1")
-    direct_vm.value = 0; warp_to(direct_vm, "2026-08-24T00:01:01Z"); mock_review(direct_vm); contract.review_action("action-1")
+    direct_vm.value = 0; warp_to(direct_vm, "2026-08-24T00:05:01Z"); mock_review(direct_vm); contract.review_action("action-1")
     action = contract.get_action("action-1")
     assert action["verdict"] == "approved" and action["challenge_bond_held"] == "0" and action["challenge_settlement"] == "slashed"
+
+
+def test_challenge_counterevidence_is_hash_bound_and_exposed(direct_vm, direct_deploy, direct_alice):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    artifact = b"counter evidence\n"
+    artifact_url = "https://example.com/counter-evidence"
+    direct_vm.value = BOND
+    with direct_vm.prank(direct_alice):
+        contract.challenge_action("action-1", artifact_url, "0x" + hashlib.sha256(artifact).hexdigest(), "The action exceeds the delegation boundary.")
+    item = contract.get_action("action-1")
+    assert item["challenge_artifact_url"] == artifact_url
+    assert item["challenge_artifact_hash"] == "0x" + hashlib.sha256(artifact).hexdigest()
+    assert item["challenge_summary"] == "The action exceeds the delegation boundary."
+    with direct_vm.prank(direct_alice):
+        with direct_vm.expect_revert("cannot be challenged"):
+            contract.challenge_action("action-1", artifact_url, "0x" + "00" * 32, "mismatch")
+
+
+def test_paused_unchallenged_review_is_blocked_but_settlement_is_not(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); contract.set_paused(True)
+    with direct_vm.expect_revert("Delegation unavailable"):
+        contract.review_action("action-1")
 
 
 def test_successful_rereview_is_final_and_cannot_be_challenged_twice(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
     direct_vm.value = BOND
     with direct_vm.prank(direct_alice): contract.challenge_action("action-1")
-    direct_vm.value = 0; warp_to(direct_vm, "2026-08-24T00:01:01Z"); mock_review(direct_vm); contract.review_action("action-1")
+    direct_vm.value = 0; warp_to(direct_vm, "2026-08-24T00:05:01Z"); mock_review(direct_vm); contract.review_action("action-1")
     with direct_vm.expect_revert("cannot be challenged"):
         contract.challenge_action("action-1")
     assert contract.is_actionable("action-1")["actionable"]
@@ -135,7 +190,7 @@ def test_sink_and_public_status_guards(direct_vm, direct_deploy):
     contract = deploy(direct_vm, direct_deploy)
     sink = "0x000000000000000000000000000000000000dEaD"
     with direct_vm.expect_revert("Delegate cannot be challenge sink"):
-        contract.create_delegation("sink", sink, "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 60)
+        contract.create_delegation("sink", sink, "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 300)
     create(contract)
     with direct_vm.expect_revert("Invalid delegation status"):
         contract.set_delegation_status("delegation-1", "invalid")
@@ -146,7 +201,7 @@ def test_sink_and_public_status_guards(direct_vm, direct_deploy):
 
 def test_consumed_actions_cannot_be_cancelled_or_challenged(direct_vm, direct_deploy):
     contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
-    warp_to(direct_vm, "2026-08-24T00:01:01Z"); contract.consume_action("action-1")
+    warp_to(direct_vm, "2026-08-24T00:05:01Z"); contract.consume_action("action-1")
     with direct_vm.expect_revert("cannot be cancelled"): contract.cancel_action("action-1")
     with direct_vm.expect_revert("cannot be challenged"): contract.challenge_action("action-1")
 
@@ -155,7 +210,7 @@ def test_timeout_refund_survives_pause_and_double_withdrawal(direct_vm, direct_d
     contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
     direct_vm.value = BOND
     with direct_vm.prank(direct_alice): contract.challenge_action("action-1")
-    direct_vm.value = 0; contract.set_paused(True); warp_to(direct_vm, "2026-08-24T00:02:01Z")
+    direct_vm.value = 0; contract.set_paused(True); warp_to(direct_vm, "2026-08-24T00:10:01Z")
     contract.settle_expired_challenge("action-1")
     with direct_vm.prank(direct_alice):
         contract.withdraw_challenge_bond("action-1")
@@ -167,7 +222,7 @@ def test_timeout_refund_survives_pause_and_double_withdrawal(direct_vm, direct_d
 def test_access_input_and_zero_address_guards(direct_vm, direct_deploy):
     contract = deploy(direct_vm, direct_deploy)
     with direct_vm.expect_revert("Zero delegate"):
-        contract.create_delegation("zero", "0x0000000000000000000000000000000000000000", "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 60)
+        contract.create_delegation("zero", "0x0000000000000000000000000000000000000000", "r", "p", "c", "e", "https://example.com/base", BASELINE, EXPIRY, BOND, 300)
     with direct_vm.expect_revert("Blocked manifest_url"):
         create(contract)
         contract.propose_action("local", "delegation-1", "https://localhost/a", MANIFEST, "https://example.com/e", EVIDENCE, "x")
