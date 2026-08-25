@@ -1,0 +1,7 @@
+Action type: bounded invoice payment
+Vendor: Acme Office Supplies
+Invoice: INV-HELIX-003
+Amount: 20 GEN-equivalent units
+The delegate may execute only this one payment to the approved vendor.
+No administrator, ownership, upgrade, withdrawal, transfer, or credential authority is requested.
+The payment is auditable and reversible through ordinary invoice accounting.
