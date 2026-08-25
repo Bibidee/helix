@@ -1,0 +1,2 @@
+Action record with incomplete vendor and amount fields.
+The proposed operation may be an invoice settlement, but the source record does not establish the vendor, amount, or reversal path.
