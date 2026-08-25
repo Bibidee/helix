@@ -175,7 +175,7 @@ def test_v031_early_closed_challenge_cancellation_releases_capacity(direct_vm, d
 def test_v031_capacity_metadata_matches_enforced_limits(direct_vm, direct_deploy):
     contract = deploy(direct_vm, direct_deploy)
     info = contract.get_info()
-    assert info["version"] == "0.5.0"
+    assert info["version"] == "0.5.1"
     assert info["capacity"] == {"delegations": 128, "open_actions_per_delegation": 32}
 
 

@@ -1,17 +1,20 @@
 # Deployment evidence
 
-## Helix v0.5.0 — RELEASE RECORD
+## Helix v0.5.1 — RELEASE RECORD
 
-The fresh v0.5.0 deployment finalized successfully; the previous v0.4.0 deployment below remains historical and is not being relabeled.
+The v0.5.0 deployment below is historical. This record is populated only after a fresh v0.5.1 deployment, finalized source parity, and fresh live evidence are complete.
 
-- Source commit: `e6a13d9`
-- Contract: [`0xDEB91F9682C4F89980CdCD059c89A2148d11D819`](https://explorer-studio.genlayer.com/address/0xDEB91F9682C4F89980CdCD059c89A2148d11D819)
-- Deployment transaction: [`0x01966b9980881cec81a2b95455c99c5a6c093dfb0ff6c1278eafe23eec1f09d1`](https://explorer-studio.genlayer.com/tx/0x01966b9980881cec81a2b95455c99c5a6c093dfb0ff6c1278eafe23eec1f09d1)
-- Finalized status / GenVM execution: `FINALIZED`, `MAJORITY_AGREE`, `SUCCESS`
-- Source bytes / SHA-256: `31,365` / `695cfc1ed2c969159e00d4bd775d2a41aac84edca6033ca8307ba381149346b6`
-- Finalized source parity: `YES` (local and retrieved SHA-256 match byte-for-byte)
-- Live v0.5.0 evidence: delegation [`0x9a8d6db1ddaa811da04bb4648107166501e63cbc883c93b5143b683dd0855c45`](https://explorer-studio.genlayer.com/tx/0x9a8d6db1ddaa811da04bb4648107166501e63cbc883c93b5143b683dd0855c45); safe proposal [`0xe9172672879221eb50c9ceb4cee99d20ce6113ce9cf80f615a55def6a10b41da`](https://explorer-studio.genlayer.com/tx/0xe9172672879221eb50c9ceb4cee99d20ce6113ce9cf80f615a55def6a10b41da) and review [`0x6a168b65f22ed8afd100451d49734d7b1e37f6268eb727d2db59bf46e7446759`](https://explorer-studio.genlayer.com/tx/0x6a168b65f22ed8afd100451d49734d7b1e37f6268eb727d2db59bf46e7446759) finalized `reviewed / approved`; corrected unsafe proposal [`0xb0ccd14683dd1ac8ed30c43b505caa8ce513a14cb6a4a6c2f3b31c2e59df26c3`](https://explorer-studio.genlayer.com/tx/0xb0ccd14683dd1ac8ed30c43b505caa8ce513a14cb6a4a6c2f3b31c2e59df26c3) and review [`0x649bec17a66e775d81336c45f8ac78078fe65054d98661ce0f321db19d4e163f`](https://explorer-studio.genlayer.com/tx/0x649bec17a66e775d81336c45f8ac78078fe65054d98661ce0f321db19d4e163f) finalized `reviewed / blocked`; ambiguous proposal [`0x9748ebc1cffe3692ba9e2bc1463e25c28a9c9806eff07292ad5607ad3e8de618`](https://explorer-studio.genlayer.com/tx/0x9748ebc1cffe3692ba9e2bc1463e25c28a9c9806eff07292ad5607ad3e8de618) and review [`0xf1641abb42b7c01f4db8dc9bfba277a00246f7ad3d7a6d87f25986f85df3af3f`](https://explorer-studio.genlayer.com/tx/0xf1641abb42b7c01f4db8dc9bfba277a00246f7ad3d7a6d87f25986f85df3af3f) finalized `reviewed / inconclusive`; replay [`0x6e8b2603da9a70c8d6470d61645a75f4c8db3a1da8c1319cd26d19ed0e339159`](https://explorer-studio.genlayer.com/tx/0x6e8b2603da9a70c8d6470d61645a75f4c8db3a1da8c1319cd26d19ed0e339159) finalized with the expected commitment-replay rollback; valid payable challenge [`0x30499eb2407a5a81a06555504b4465f69f5b5edb649f8fb37bae605bb003cae0`](https://explorer-studio.genlayer.com/tx/0x30499eb2407a5a81a06555504b4465f69f5b5edb649f8fb37bae605bb003cae0) finalized from eligible challenger `0xae82EFfe54dCcfd170d9a08EeE128339A70347f7`, holding exactly `0.001 GEN`.
-- Protocol-time-gated evidence still pending: challenged re-review/settlement for `safe-v050` (challenge opened at `2026-08-25T08:13:37Z`, opens after `2026-08-25T14:13:37Z`) and safe2 consumption/double-consumption. The independent safe2 proposal is `0x4af351632bbc2dd165d4a89d7395c8943104a8f1bcb61af8f539a0bf429b993a`, and review `0x19fa9ea4e4a5f4eaab93b0297f10bb40193fdc06091180d913273f0cc6f12e48` finalized `reviewed / approved` at `2026-08-25T08:33:08Z`; its action window opens after `2026-08-25T14:33:08Z`.
+- Source commit: pending
+- Contract: pending
+- Deployment transaction: pending
+- Finalized status / GenVM execution: pending
+- Source bytes / SHA-256 / Git blob: pending
+- Finalized source parity: pending
+- Live v0.5.1 evidence: pending
+
+## Helix v0.5.0 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
+
+The v0.5.0 deployment is [`0xDEB91F9682C4F89980CdCD059c89A2148d11D819`](https://explorer-studio.genlayer.com/address/0xDEB91F9682C4F89980CdCD059c89A2148d11D819), deployment transaction [`0x01966b9980881cec81a2b95455c99c5a6c093dfb0ff6c1278eafe23eec1f09d1`](https://explorer-studio.genlayer.com/tx/0x01966b9980881cec81a2b95455c99c5a6c093dfb0ff6c1278eafe23eec1f09d1), source commit `e6a13d9`, 31,365 bytes, SHA-256 `695cfc1ed2c969159e00d4bd775d2a41aac84edca6033ca8307ba381149346b6`, exact retrieved-source parity `YES`. It is historical because v0.5.1 moves counterevidence admission into a nondeterministic consensus block.
 
 ## Helix v0.4.0 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
 

@@ -1,4 +1,4 @@
-# Helix design (v0.5.0 release candidate)
+# Helix design (v0.5.1 release candidate)
 
 Helix answers one precise question: **does this exact proposed action belong inside this exact delegation?** It does not execute the action.
 
@@ -14,7 +14,7 @@ The contract uses one internal actionability predicate for the view and consumpt
 
 The first exact-bond challenge opens one shared round and immediately removes actionability. Owner, delegate, proposer, consumer, and challenge sink are interested parties and cannot initiate it. Each action intentionally has one lifetime challenge round: one independent challenger may open it, and later challengers cannot add evidence. This is a bounded-state tradeoff, not a claim of Sybil resistance. Supplied counterevidence is fetched, size-limited, hash-verified, UTF-8-validated, and stored as a bounded snapshot before the round is persisted. Approved challenged re-review sends the bond to the neutral sink; blocked/inconclusive review, timeout, expiry, original-artifact failure, and owner closure make it refundable exactly once. Settlement and withdrawal remain available during pause.
 
-Counterevidence is optional, immutable HTTPS content pinned by a SHA-256 hash. Invalid or unavailable evidence at opening rejects the challenge transaction before any bond is held. Later review uses only the stored snapshot and never refetches the challenger URL. Original baseline, manifest, or evidence failure during challenged review is fail-closed and refundable; it cannot restore approval or slash the challenger.
+Counterevidence is optional, immutable HTTPS content pinned by a SHA-256 hash. Admission runs inside `gl.vm.run_nondet_unsafe`: leader and validator independently fetch, size-limit, hash-verify, and UTF-8-validate the commitment, and exact consensus is required. No storage, transfer, or event occurs inside that block. Invalid or unavailable evidence at opening rejects the challenge transaction before any bond is held or round state is consumed. Later review uses only the stored snapshot and never refetches the challenger URL. Original baseline, manifest, or evidence failure during challenged review is fail-closed and refundable; it cannot restore approval or slash the challenger.
 
 The timing floor is 21,600 seconds (six hours). Delegation expiry must extend beyond two configured windows before proposals and approvals are accepted. Re-review cannot begin while the challenge window is open; the review deadline is one further window after that point. If the deadline, delegation expiry, or permanent closure is reached, anyone may settle the challenge. Timeout means review did not establish approval: active delegations settle to `REVIEWED/INCONCLUSIVE`, while expiry/closure cancels; all such paths refund once and release quota exactly once.
 

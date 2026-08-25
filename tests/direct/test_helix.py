@@ -36,7 +36,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.5.0"
+    assert contract.get_info()["version"] == "0.5.1"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -168,6 +168,42 @@ def test_challenge_counterevidence_is_hash_bound_and_exposed(direct_vm, direct_d
         direct_vm.value = BOND
         with direct_vm.expect_revert("cannot be challenged"):
             contract.challenge_action("action-1", artifact_url, "0x" + "00" * 32, "mismatch")
+
+
+def test_counterevidence_admission_runs_validator_and_rejects_changed_snapshot(direct_vm, direct_deploy, direct_alice):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    artifact_url = "https://example.com/consensus-counter"
+    artifact_a, artifact_b = b"counter A\n", b"counter B\n"
+    artifact_hash = "0x" + hashlib.sha256(artifact_a).hexdigest()
+    direct_vm.mock_web(artifact_url, {"status": 200, "body": artifact_a})
+    direct_vm.value = BOND
+    with direct_vm.prank(direct_alice):
+        contract.challenge_action("action-1", artifact_url, artifact_hash, "Counterevidence")
+    assert direct_vm.run_validator() is True
+    direct_vm.clear_mocks(); direct_vm.mock_web(artifact_url, {"status": 200, "body": artifact_b})
+    assert direct_vm.run_validator() is False
+    item = contract.get_action("action-1")
+    assert item["status"] == "challenged" and item["challenge_artifact_text"] == artifact_a.decode()
+
+
+@pytest.mark.parametrize("response,expected", [
+    ({"status": 404, "body": b"not found"}, "Invalid challenge evidence: bad_http_status"),
+    ({"status": 200, "body": b""}, "Invalid challenge evidence: empty_response"),
+    ({"status": 200, "body": bytes([255])}, "Invalid challenge evidence: invalid_utf8"),
+    ({"status": 500, "body": b"temporary"}, "Challenge evidence temporarily unavailable"),
+    ({"status": 429, "body": b"rate limited"}, "Challenge evidence temporarily unavailable"),
+])
+def test_counterevidence_admission_failures_do_not_hold_bond_or_consume_round(direct_vm, direct_deploy, direct_alice, response, expected):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    artifact_url = "https://example.com/invalid-counter"
+    raw = response["body"]
+    expected_hash = "0x" + hashlib.sha256(raw).hexdigest()
+    direct_vm.mock_web(artifact_url, response); direct_vm.value = BOND
+    with direct_vm.prank(direct_alice):
+        with direct_vm.expect_revert(expected):
+            contract.challenge_action("action-1", artifact_url, expected_hash, "Invalid counterevidence")
+    item = contract.get_action("action-1")
+    assert item["status"] == "reviewed" and item["verdict"] == "approved" and item["challenge_bond_held"] == "0"
 
 
 def test_challenge_sink_cannot_open_a_round(direct_vm, direct_deploy):

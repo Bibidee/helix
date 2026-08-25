@@ -1,4 +1,4 @@
-# v0.5.0
+# v0.5.1
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 """Helix: semantic, hash-bound delegation-scope attestations."""
 
@@ -249,6 +249,17 @@ def fetch_verified(value_url: str, expected_hash: str) -> str:
     except UnicodeDecodeError: raise ValueError("invalid_utf8")
 
 
+def observe_challenge_artifact(value_url: str, expected_hash: str) -> dict:
+    try:
+        return {"kind": "challenge_artifact", "text": fetch_verified(value_url, expected_hash)}
+    except ValueError as exc:
+        failure = str(exc)
+        known = ("fetch_unavailable", "http_unavailable", "bad_http_status", "empty_response", "artifact_too_large", "hash_mismatch", "invalid_utf8")
+        return {"kind": "challenge_artifact_error", "class": failure if failure in known else "fetch_unavailable"}
+    except Exception:
+        return {"kind": "challenge_artifact_error", "class": "fetch_unavailable"}
+
+
 def observe(delegation: Delegation, action: Action) -> dict:
     try:
         baseline = fetch_verified(str(delegation.baseline_url), str(delegation.baseline_hash))
@@ -416,8 +427,25 @@ class Helix(gl.Contract):
         challenge_text = ""
         if challenge_artifact_url or challenge_artifact_hash or challenge_summary:
             challenge_artifact_url = url(challenge_artifact_url, "challenge_artifact_url"); challenge_artifact_hash = canonical_hash(challenge_artifact_hash); challenge_summary = text(challenge_summary, "challenge_summary", 400)
-            try: challenge_text = fetch_verified(challenge_artifact_url, challenge_artifact_hash)
-            except ValueError as exc: raise gl.vm.UserError(f"{EXPECTED} Invalid challenge evidence: {str(exc)}")
+            def leader() -> dict:
+                return observe_challenge_artifact(challenge_artifact_url, challenge_artifact_hash)
+            def validator(leader_result: gl.vm.Result) -> bool:
+                if not isinstance(leader_result, gl.vm.Return) or not isinstance(leader_result.calldata, dict): return False
+                left, right = leader_result.calldata, observe_challenge_artifact(challenge_artifact_url, challenge_artifact_hash)
+                if left.get("kind") != right.get("kind"): return False
+                if left.get("kind") == "challenge_artifact":
+                    return isinstance(left.get("text"), str) and left.get("text") != "" and left.get("text") == right.get("text")
+                if left.get("kind") == "challenge_artifact_error": return left.get("class") == right.get("class")
+                return False
+            admission = gl.vm.run_nondet_unsafe(leader, validator)
+            if not isinstance(admission, dict): raise gl.vm.UserError(f"{RETRYABLE} Invalid challenge evidence consensus")
+            if admission.get("kind") == "challenge_artifact_error":
+                failure = str(admission.get("class", "fetch_unavailable"))
+                if failure in ("fetch_unavailable", "http_unavailable"): raise gl.vm.UserError(f"{RETRYABLE} Challenge evidence temporarily unavailable")
+                raise gl.vm.UserError(f"{EXPECTED} Invalid challenge evidence: {failure}")
+            if admission.get("kind") != "challenge_artifact" or not isinstance(admission.get("text"), str) or admission.get("text") == "":
+                raise gl.vm.UserError(f"{RETRYABLE} Invalid challenge evidence consensus")
+            challenge_text = admission["text"]
         else:
             challenge_artifact_url = challenge_artifact_hash = challenge_summary = ""
         action.status, action.verdict, action.challenged_at, action.challenger = CHALLENGED, "", u256(now), gl.message.sender_address
@@ -478,4 +506,4 @@ class Helix(gl.Contract):
 
     @gl.public.view
     def get_info(self) -> dict:
-        return {"name": "Helix", "version": "0.5.0", "owner": self.owner.as_hex, "challenge_sink": self.challenge_sink.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "open_actions_per_delegation": MAX_OPEN_ACTIONS_PER_DELEGATION}}
+        return {"name": "Helix", "version": "0.5.1", "owner": self.owner.as_hex, "challenge_sink": self.challenge_sink.as_hex, "paused": self.paused, "delegation_count": str(self.delegation_count), "action_count": str(self.action_count), "capacity": {"delegations": MAX_DELEGATIONS, "open_actions_per_delegation": MAX_OPEN_ACTIONS_PER_DELEGATION}}
