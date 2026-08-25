@@ -1,4 +1,5 @@
 import hashlib
+import json
 import pytest
 import sys
 
@@ -35,7 +36,7 @@ def mock_review(direct_vm, **overrides):
 
 def test_info_and_owner_only_controls(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
-    assert contract.get_info()["version"] == "0.4.0"
+    assert contract.get_info()["version"] == "0.5.0"
     with direct_vm.prank(direct_alice):
         with direct_vm.expect_revert("Owner only"):
             contract.set_paused(True)
@@ -154,6 +155,7 @@ def test_challenge_counterevidence_is_hash_bound_and_exposed(direct_vm, direct_d
     contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
     artifact = b"counter evidence\n"
     artifact_url = "https://example.com/counter-evidence"
+    direct_vm.mock_web(artifact_url, {"status": 200, "body": artifact})
     direct_vm.value = BOND
     with direct_vm.prank(direct_alice):
         contract.challenge_action("action-1", artifact_url, "0x" + hashlib.sha256(artifact).hexdigest(), "The action exceeds the delegation boundary.")
@@ -161,10 +163,46 @@ def test_challenge_counterevidence_is_hash_bound_and_exposed(direct_vm, direct_d
     assert item["challenge_artifact_url"] == artifact_url
     assert item["challenge_artifact_hash"] == "0x" + hashlib.sha256(artifact).hexdigest()
     assert item["challenge_summary"] == "The action exceeds the delegation boundary."
+    assert item["challenge_artifact_text"] == artifact.decode()
     with direct_vm.prank(direct_alice):
         direct_vm.value = BOND
         with direct_vm.expect_revert("cannot be challenged"):
             contract.challenge_action("action-1", artifact_url, "0x" + "00" * 32, "mismatch")
+
+
+def test_challenge_sink_cannot_open_a_round(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract); mock_review(direct_vm); contract.review_action("action-1")
+    sink = bytes.fromhex(contract.get_info()["challenge_sink"][2:])
+    direct_vm.value = BOND
+    with direct_vm.prank(sink):
+        with direct_vm.expect_revert("Interested party"):
+            contract.challenge_action("action-1")
+    direct_vm.value = 0
+
+
+def test_real_observation_pipeline_verifies_bytes_and_prompt(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    baseline = b"baseline policy\n"; manifest = b"action manifest\n"; evidence = b"evidence\n"
+    direct_vm.mock_web("https://example.com/baseline", {"status": 200, "body": baseline})
+    direct_vm.mock_web("https://example.com/manifest", {"status": 200, "body": manifest})
+    direct_vm.mock_web("https://example.com/evidence", {"status": 200, "body": evidence})
+    direct_vm.mock_llm("You review whether", json.dumps(analysis()))
+    contract.review_action("action-1")
+    assert contract.get_action("action-1")["verdict"] == "approved"
+
+
+def test_proposal_near_expiry_is_rejected(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract)
+    warp_to(direct_vm, "2027-08-19T23:00:00Z")
+    with direct_vm.expect_revert("Insufficient delegation lifetime"):
+        propose(direct_vm, contract)
+
+
+def test_initial_approval_near_expiry_is_rejected(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy); create(contract); propose(direct_vm, contract)
+    warp_to(direct_vm, "2027-08-19T23:00:00Z"); mock_review(direct_vm)
+    with direct_vm.expect_revert("Insufficient delegation lifetime"):
+        contract.review_action("action-1")
 
 
 def test_paused_unchallenged_review_is_blocked_but_settlement_is_not(direct_vm, direct_deploy):

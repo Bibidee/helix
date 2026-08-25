@@ -1,16 +1,28 @@
 # Deployment evidence
 
-## Helix v0.4.0 — CURRENT SOURCE-MATCHED DEPLOYMENT
+## Helix v0.5.0 — RELEASE RECORD
 
-The v0.4.0 source keeps one intentionally bounded lifetime challenge round, adds the six-hour minimum window and expiry guard, slashes unresolved challenger-supplied counterevidence at timeout, and namespaces action IDs by delegation. It is deployed at [`0xfB191c351c51B20d0A84F2B1363b0e151300704E`](https://explorer-studio.genlayer.com/address/0xfB191c351c51B20d0A84F2B1363b0e151300704E), deployment transaction [`0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa`](https://explorer-studio.genlayer.com/tx/0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa), source commit `5545800ee64223dc5aaac4715d7ce8e8f56cc0a4`, 31,652 bytes, SHA-256 `a4caf0763bd72db399c29962074a5fcc5875dece6631a6286248454fba9c338a`, exact retrieved-source parity `YES`. Deployment finalized with `MAJORITY_AGREE` and GenVM `SUCCESS`.
+This section is populated only after a fresh v0.5.0 deployment finalizes, finalized-source parity is proven, and live receipts are recorded. The previous v0.4.0 deployment below remains historical and is not being relabeled.
+
+- Source commit: pending fresh deployment
+- Contract: pending
+- Deployment transaction: pending
+- Finalized status / GenVM execution: pending
+- Source bytes / SHA-256 / Git blob: pending
+- Finalized source parity: pending
+- Live safe, blocked, inconclusive, replay, challenge, settlement, consume, and double-consume receipts: pending
+
+## Helix v0.4.0 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
+
+The v0.4.0 source is deployed at [`0xfB191c351c51B20d0A84F2B1363b0e151300704E`](https://explorer-studio.genlayer.com/address/0xfB191c351c51B20d0A84F2B1363b0e151300704E), deployment transaction [`0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa`](https://explorer-studio.genlayer.com/tx/0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa), source commit `5545800ee64223dc5aaac4715d7ce8e8f56cc0a4`, 31,652 bytes, SHA-256 `a4caf0763bd72db399c29962074a5fcc5875dece6631a6286248454fba9c338a`, exact retrieved-source parity `YES`. Deployment finalized with `MAJORITY_AGREE` and GenVM `SUCCESS`. It is historical after v0.5.0 source changes.
 
 Live v0.4.0 receipts: delegation `0x02e72d9e90be1b316a1a0c5ef7b090cc530dd8712fc4f63664591df17cfadb61`; safe proposal `0x1da7087cbf4d19d7eeaea8f5aaf43c8c70eb0fc3b9cb025bb6fd576a701c320d`; safe review `0x3a72f4fb018008c0c6207992dd4a93d9deabd1e9db800b014eb0fefd9c9ca7e7` finalized `reviewed / approved`; unsafe proposal `0xb1c1952d8ee6aa9da9689c948a64b35edef20598052b11a361f9963c1af33800`; unsafe review `0xf4cb2cf0a30fc971bbf19b5081aa2f93c6472c857ba4c9f5b71daba0261d423d` finalized `reviewed / blocked`; replay `0xae91e2000ab9153c9a59b313b2030fce9d999ef9055fbae34b68e34b23fd025a` finalized with `[EXPECTED] Action commitment already registered`; inconclusive proposal `0xf16e30ba4aebcf88efea4e5adb5fe85501e3bbdcaef86b329de7fec535de84be` and review `0xfcba757925a9b9e22ecf5904bd1a481fe0ef52267dfbb354d8daea251c89f38d` finalized `reviewed / inconclusive`, confidence 10; valid bonded challenge `0xcc7878e06b750c9a288a571b79673603589e7b5474623201ad5f3249504ded3b` finalized from challenger `0xae82EFfe54dCcfd170d9a08EeE128339A70347f7` with exact `0.001 GEN` held and state `challenged`.
 
-### Design tradeoffs and future hardening
+### Historical v0.4.0 tradeoff note
 
-Helix intentionally permits one lifetime challenge round per action to keep challenge state bounded and deterministic. On an unresolved challenged review, timeout settlement restores the original approval and applies the configured challenger penalty when counterevidence was supplied. The contract does not yet persist finer-grained attribution between challenger-side counterevidence availability and availability failures affecting the original baseline, manifest, or evidence. More granular attribution is reserved for future hardening.
+The v0.4.0 release used a bounded lifetime challenge round. Its timeout/availability behavior is historical and was replaced by v0.5.0’s snapshot-and-refund rules; it must not be used to describe the current source.
 
-At submission time, safe consumption, double-consume rejection, challenged re-review, and final bond settlement were still protocol-time-gated and therefore are not claimed as live evidence.
+The v0.4.0 safe consumption, double-consume rejection, challenged re-review, and final bond settlement receipts were protocol-time-gated and are not promoted as v0.5.0 evidence.
 
 The post-deployment validator-divergence regression suite uses `direct_vm.run_validator()` with changed validator-side mocks and passes without modifying `contracts/helix.py`. The frozen source remains 31,652 bytes with SHA-256 `a4caf0763bd72db399c29962074a5fcc5875dece6631a6286248454fba9c338a`.
 

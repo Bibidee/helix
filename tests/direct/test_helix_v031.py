@@ -92,35 +92,7 @@ def test_v031_consumer_is_an_interested_party_for_challenges(direct_vm, direct_d
     direct_vm.value = 0
 
 
-def test_v031_transient_challenge_fetch_failure_preserves_bond_and_state(direct_vm, direct_deploy, direct_alice):
-    contract = deploy(direct_vm, direct_deploy)
-    create(contract)
-    propose(contract)
-    open_challenge(direct_vm, contract, direct_alice)
-    direct_vm._helix_module.observe = lambda *args: {"kind": "observation_error", "class": "challenge_artifact_unavailable"}
-    with direct_vm.expect_revert("Challenge evidence temporarily unavailable"):
-        contract.review_action("action-v031")
-    action = contract.get_action("action-v031")
-    assert action["status"] == "challenged"
-    assert action["challenge_bond_held"] == str(BOND)
-    assert action["challenge_settlement"] == "held"
-
-
-def test_v031_invalid_counterevidence_can_still_be_slashed(direct_vm, direct_deploy, direct_alice):
-    contract = deploy(direct_vm, direct_deploy)
-    create(contract)
-    propose(contract)
-    open_challenge(direct_vm, contract, direct_alice)
-    direct_vm._helix_module.observe = lambda *args: {"kind": "observation_error", "class": "challenge_artifact_invalid"}
-    contract.review_action("action-v031")
-    action = contract.get_action("action-v031")
-    assert action["status"] == "reviewed"
-    assert action["verdict"] == "approved"
-    assert action["challenge_bond_held"] == "0"
-    assert action["challenge_settlement"] == "slashed"
-
-
-def test_v040_unavailable_challenger_artifact_at_deadline_is_slashed(direct_vm, direct_deploy, direct_alice):
+def test_v050_original_artifact_failure_is_inconclusive_and_refundable(direct_vm, direct_deploy, direct_alice):
     contract = deploy(direct_vm, direct_deploy)
     create(contract)
     propose(contract)
@@ -128,15 +100,60 @@ def test_v040_unavailable_challenger_artifact_at_deadline_is_slashed(direct_vm, 
     contract.review_action("action-v031")
     direct_vm.value = BOND
     with direct_vm.prank(direct_alice):
-        contract.challenge_action("action-v031", "https://example.com/counter", "0x" + "11" * 32, "counter")
+        contract.challenge_action("action-v031")
+    direct_vm.value = 0
+    warp_to(direct_vm, "2026-08-24T06:00:01Z")
+    direct_vm._helix_module.observe = lambda *args: {"kind": "observation_error", "class": "fetch_unavailable"}
+    contract.review_action("action-v031")
+    action = contract.get_action("action-v031")
+    assert action["status"] == "reviewed"
+    assert action["verdict"] == "inconclusive"
+    assert action["challenge_bond_held"] == str(BOND)
+    assert action["challenge_settlement"] == "refund"
+
+
+def test_v050_invalid_counterevidence_is_rejected_before_opening(direct_vm, direct_deploy, direct_alice):
+    contract = deploy(direct_vm, direct_deploy)
+    create(contract)
+    propose(contract)
+    direct_vm._helix_module.observe = lambda *args: approved()
+    contract.review_action("action-v031")
+    direct_vm.value = BOND
+    artifact_url = "https://example.com/counter"
+    direct_vm.mock_web(artifact_url, {"status": 200, "body": b"counter"})
+    with direct_vm.prank(direct_alice):
+        with direct_vm.expect_revert("Invalid challenge evidence"):
+            contract.challenge_action("action-v031", artifact_url, "0x" + "11" * 32, "counter")
+    action = contract.get_action("action-v031")
+    assert action["status"] == "reviewed"
+    assert action["verdict"] == "approved"
+    assert action["challenge_bond_held"] == "0"
+    assert action["challenge_settlement"] == ""
+
+
+def test_v050_timeout_never_approves_and_refunds(direct_vm, direct_deploy, direct_alice):
+    contract = deploy(direct_vm, direct_deploy)
+    create(contract)
+    propose(contract)
+    direct_vm._helix_module.observe = lambda *args: approved()
+    contract.review_action("action-v031")
+    direct_vm.value = BOND
+    artifact = b"counter"
+    artifact_url = "https://example.com/counter"
+    direct_vm.mock_web(artifact_url, {"status": 200, "body": artifact})
+    with direct_vm.prank(direct_alice):
+        contract.challenge_action("action-v031", artifact_url, "0x" + hashlib.sha256(artifact).hexdigest(), "counter")
     direct_vm.value = 0
     warp_to(direct_vm, "2026-08-24T12:00:01Z")
     contract.settle_expired_challenge("action-v031")
     action = contract.get_action("action-v031")
     assert action["status"] == "reviewed"
-    assert action["verdict"] == "approved"
-    assert action["challenge_bond_held"] == "0"
-    assert action["challenge_settlement"] == "slashed"
+    assert action["verdict"] == "inconclusive"
+    assert action["challenge_bond_held"] == str(BOND)
+    assert action["challenge_settlement"] == "refund"
+    with direct_vm.prank(direct_alice):
+        contract.withdraw_challenge_bond("action-v031")
+    assert contract.get_action("action-v031")["challenge_bond_held"] == "0"
 
 
 def test_v031_early_closed_challenge_cancellation_releases_capacity(direct_vm, direct_deploy, direct_alice):
@@ -158,7 +175,7 @@ def test_v031_early_closed_challenge_cancellation_releases_capacity(direct_vm, d
 def test_v031_capacity_metadata_matches_enforced_limits(direct_vm, direct_deploy):
     contract = deploy(direct_vm, direct_deploy)
     info = contract.get_info()
-    assert info["version"] == "0.4.0"
+    assert info["version"] == "0.5.0"
     assert info["capacity"] == {"delegations": 128, "open_actions_per_delegation": 32}
 
 

@@ -15,14 +15,14 @@ Helix is a reusable primitive, not an execution engine or frontend. Downstream s
 
 ## Security invariants
 
-- One deployable source: `contracts/helix.py` (v0.4.0).
+- One deployable source: `contracts/helix.py` (v0.5.0).
 - Action and optional challenge artefacts are SHA-256 commitments over exact raw bytes.
 - Authority, expiry, replay protection, state transitions, bond accounting, quota release, and actionability are deterministic.
 - Validators independently classify the semantic dimensions; consensus compares only the deterministic derived verdict, never rationale or diagnostic-field identity.
 - Approval requires the complete safe tuple plus confidence at or above the deterministic threshold; `unclear` without an affirmative unsafe finding is `INCONCLUSIVE`.
 - Replay identity is `delegation_id | manifest_hash`; changing action ID, nonce, or evidence does not allow the same manifest to be registered twice within one delegation.
 - Challenge sink is distinct from owner, delegate, and consumer. Owner, delegate, proposer, and consumer cannot capture the challenge round.
-- One bounded challenge round is intentional: only one independent challenger can open it. Invalid counterevidence is slashed; if supplied counterevidence remains unavailable through the deadline, the original approval survives and the bond is slashed rather than refunded. Original-action infrastructure failures do not trigger this challenger-specific rule.
+- One bounded lifetime challenge round is intentional: only one independent challenger can open it. Counterevidence is fetched, hash-verified, UTF-8-validated, and snapshotted at opening, so later URL availability is irrelevant. Invalid opening evidence rejects the transaction without consuming the round or holding a bond. Original-artifact failure, timeout, expiry, and owner closure never manufacture approval and never slash an unresolved challenger; they produce a non-actionable outcome and a one-time refund.
 - Global pause blocks new productive execution but never strands challenge settlement or withdrawal.
 - Each delegation permits at most 32 concurrent open actions. Terminal blocked, inconclusive, cancelled, or consumed actions release their slot exactly once.
 - Action records are internally namespaced by `delegation_id | action_id`, so separate delegations may reuse a public action ID.
@@ -49,7 +49,7 @@ The Direct Mode suite includes genuine validator-specific divergence checks via 
 
 ## Studionet release status
 
-The current source tree is v0.4.0 and is source-matched to [`0xfB191c351c51B20d0A84F2B1363b0e151300704E`](https://explorer-studio.genlayer.com/address/0xfB191c351c51B20d0A84F2B1363b0e151300704E), deployed by [`0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa`](https://explorer-studio.genlayer.com/tx/0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa). Deployment finalized with `MAJORITY_AGREE` and GenVM `SUCCESS`. Source commit is `5545800ee64223dc5aaac4715d7ce8e8f56cc0a4`, 31,652 bytes, SHA-256 `a4caf0763bd72db399c29962074a5fcc5875dece6631a6286248454fba9c338a`; retrieved source matches exactly byte-for-byte. v0.3.1 remains historical at [`0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2`](https://explorer-studio.genlayer.com/address/0xD94f2e7c0CF068F0FF3C2bD8a95c8Cdf85A14fd2).
+The v0.4.0 deployment is historical at [`0xfB191c351c51B20d0A84F2B1363b0e151300704E`](https://explorer-studio.genlayer.com/address/0xfB191c351c51B20d0A84F2B1363b0e151300704E). v0.5.0 becomes current only after a fresh finalized deployment and exact finalized-source parity verification are recorded below.
 
 The latest source-matched historical deployment is v0.3.0 at [`0x0bC80b70F87b493F12aBd27461666052a9FF8B57`](https://explorer-studio.genlayer.com/address/0x0bC80b70F87b493F12aBd27461666052a9FF8B57), deployed by [`0xb01c4669…148f2b`](https://explorer-studio.genlayer.com/tx/0xb01c466981a6ff19d6fb494f9d73181d167c7ff02e1fd1dafc25e41a43148f2b). Repository-recorded parity for that frozen v0.3.0 source is byte-for-byte `YES`, SHA-256 `db673f3d7e905127505d2f5dde47fab8cb6381482f50932f78e61fcca7e1b65b`.
 
@@ -59,6 +59,6 @@ Recorded v0.4.0 live evidence: delegation [`0x02e72d9e90be1b316a1a0c5ef7b090cc53
 
 ### Design tradeoffs and future hardening
 
-Helix intentionally permits one lifetime challenge round per action to keep challenge state bounded and deterministic. On an unresolved challenged review, timeout settlement restores the original approval and applies the configured challenger penalty when counterevidence was supplied. The contract does not yet persist finer-grained attribution between challenger-side counterevidence availability and availability failures affecting the original baseline, manifest, or evidence. More granular attribution is reserved for future hardening.
+Helix intentionally permits one lifetime challenge round per action to keep challenge state and economics bounded and deterministic. Counterevidence is snapshotted at opening. A timeout, original-artifact failure, expiry, or owner closure never creates `APPROVED`; it ends in a non-actionable outcome and refunds the held challenger bond. A successful challenged semantic review that returns `APPROVED` sends the bond to the neutral sink; `BLOCKED` or `INCONCLUSIVE` makes it refundable. Multi-watchdog aggregation is outside v0.5.0 scope.
 
-At submission time, safe consumption, double-consume rejection, challenged re-review, and final bond settlement were still protocol-time-gated and therefore are not claimed as live evidence.
+Challenge periods are measured from deterministic GenLayer transaction timestamps, not guaranteed wall-clock time after explorer finalization. Consensus/finality latency can reduce externally observed time; deployments should choose operational margin above the six-hour minimum.
