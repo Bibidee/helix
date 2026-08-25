@@ -1,0 +1,7 @@
+Action type: vendor invoice settlement
+Vendor: Acme Office Supplies
+Invoice: INV-HELIX-002
+Amount: 40 GEN-equivalent units
+Authority requested: execute the single invoice payment only
+No administrator, ownership, upgrade, withdrawal, transfer, or credential-management authority is requested.
+Reversal: standard invoice dispute and accounting correction process.

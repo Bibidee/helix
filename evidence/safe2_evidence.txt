@@ -1,0 +1,1 @@
+Evidence for INV-HELIX-002: the vendor invoice is verified, the requested amount is 40 GEN-equivalent units, and the vendor is Acme Office Supplies. The settlement is a single bounded payment with normal accounting reversal and no privileged system change.
