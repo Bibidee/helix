@@ -20,6 +20,12 @@ The timing floor is 21,600 seconds (six hours). Delegation expiry must extend be
 
 Challenges may include an immutable HTTPS URL and SHA-256 commitment for counterevidence. The opening transaction verifies raw bytes and stores the decoded bounded snapshot. Validators then interpret that snapshot alongside the original verified artefacts. No timeout, closure, infrastructure failure, or malformed observation can synthesize `APPROVED`.
 
+## Challenge model and bounded-round tradeoff
+
+Helix intentionally permits one lifetime challenge round per action. This keeps challenge state, bond accounting, storage growth, and settlement behavior bounded and deterministic. Once an eligible independent challenger opens the round, later challengers cannot add additional counterevidence for that same action.
+
+The tradeoff is that Helix does not currently support multi-watchdog aggregation or multiple independent challenge rounds. A later watchdog with stronger evidence cannot reopen an action after the single challenge round has been consumed. This is a deliberate scope choice for the current release rather than an undocumented limitation. Future versions may explore bounded multi-challenger evidence aggregation while preserving deterministic storage, Sybil resistance, and predictable challenge economics.
+
 ## Replay and capacity
 
 Each delegation has a separate consumer address. The delegate may propose, but only the consumer may consume an actionable attestation. Action storage is namespaced by `delegation_id | action_id`, so the same public action ID can be used by different delegations; callers use the optional delegation ID when an ID is ambiguous.

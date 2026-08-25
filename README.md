@@ -64,3 +64,7 @@ Fresh v0.5.1 evidence is recorded in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md):
 Helix intentionally permits one lifetime challenge round per action to keep challenge state and economics bounded and deterministic. In v0.5.1, counterevidence admission is itself a nondeterministic consensus block: leader and validator independently fetch and hash-check the artifact, and only exact agreement permits the deterministic state mutation that stores the snapshot and holds the bond. A timeout, original-artifact failure, expiry, or owner closure never creates `APPROVED`; it ends in a non-actionable outcome and refunds the held challenger bond.
 
 Challenge periods are measured from deterministic GenLayer transaction timestamps, not guaranteed wall-clock time after explorer finalization. Consensus/finality latency can reduce externally observed time; deployments should choose operational margin above the six-hour minimum.
+
+### Challenge-round tradeoff
+
+Helix uses one lifetime challenge round per action. This keeps challenge storage, bond accounting, and settlement deterministic and bounded, but means later watchdogs cannot add stronger evidence once that round has been used. Multi-watchdog aggregation is reserved for future hardening.

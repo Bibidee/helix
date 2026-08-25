@@ -17,6 +17,8 @@ The v0.5.0 deployment below is historical. This record is populated only after a
 
 The v0.5.0 deployment is [`0xDEB91F9682C4F89980CdCD059c89A2148d11D819`](https://explorer-studio.genlayer.com/address/0xDEB91F9682C4F89980CdCD059c89A2148d11D819), deployment transaction [`0x01966b9980881cec81a2b95455c99c5a6c093dfb0ff6c1278eafe23eec1f09d1`](https://explorer-studio.genlayer.com/tx/0x01966b9980881cec81a2b95455c99c5a6c093dfb0ff6c1278eafe23eec1f09d1), source commit `e6a13d9`, 31,365 bytes, SHA-256 `695cfc1ed2c969159e00d4bd775d2a41aac84edca6033ca8307ba381149346b6`, exact retrieved-source parity `YES`. It is historical because v0.5.1 moves counterevidence admission into a nondeterministic consensus block.
 
+The current v0.5.1 challenge model intentionally permits one lifetime challenge round per action. Later watchdogs cannot add evidence after that round is consumed; multi-watchdog aggregation is future hardening, not current functionality.
+
 ## Helix v0.4.0 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
 
 The v0.4.0 source is deployed at [`0xfB191c351c51B20d0A84F2B1363b0e151300704E`](https://explorer-studio.genlayer.com/address/0xfB191c351c51B20d0A84F2B1363b0e151300704E), deployment transaction [`0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa`](https://explorer-studio.genlayer.com/tx/0x82627948ec2271a8a5e00e4fd5e20173d89bf5d2ac0bc8127a935ee8c69808aa), source commit `5545800ee64223dc5aaac4715d7ce8e8f56cc0a4`, 31,652 bytes, SHA-256 `a4caf0763bd72db399c29962074a5fcc5875dece6631a6286248454fba9c338a`, exact retrieved-source parity `YES`. Deployment finalized with `MAJORITY_AGREE` and GenVM `SUCCESS`. It is historical after v0.5.0 source changes.
