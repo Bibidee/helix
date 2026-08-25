@@ -4,13 +4,14 @@
 
 The v0.5.0 deployment below is historical. This record is populated only after a fresh v0.5.1 deployment, finalized source parity, and fresh live evidence are complete.
 
-- Source commit: pending
-- Contract: pending
-- Deployment transaction: pending
-- Finalized status / GenVM execution: pending
-- Source bytes / SHA-256 / Git blob: pending
-- Finalized source parity: pending
-- Live v0.5.1 evidence: pending
+- Source commit: `c03cd47089867c90edf5ae712e2614adac399db6`
+- Contract: [`0x30Fb9e46CD33e1b8570b3ba3a1b076Ebfc5B86f2`](https://explorer-studio.genlayer.com/address/0x30Fb9e46CD33e1b8570b3ba3a1b076Ebfc5B86f2)
+- Deployment transaction: [`0x6aaa9349aed30f550edee9db4ce7c4c310ffdaa861759e47ba14dd7cbd8a35aa`](https://explorer-studio.genlayer.com/tx/0x6aaa9349aed30f550edee9db4ce7c4c310ffdaa861759e47ba14dd7cbd8a35aa)
+- Finalized status / consensus / GenVM: `FINALIZED`, `MAJORITY_AGREE`, leader `SUCCESS` (quorum-cancelled validator executions are not contract failures)
+- Source bytes / SHA-256: `33,474` / `5d208689a1ac7431c7f5538444e6787156da7b62503e28222c55bfd17d09e13f`
+- Finalized source parity: `YES` (local and retrieved bytes match exactly)
+- Live v0.5.1 evidence: delegation [`0x9bfefd02c28d87bba1f8c4e2c19bf546b16d3270ded26e10472d436d112c51dd`](https://explorer-studio.genlayer.com/tx/0x9bfefd02c28d87bba1f8c4e2c19bf546b16d3270ded26e10472d436d112c51dd); safe proposal [`0xc43ceef371e89766881ca5900d5307acb3e551749c6ea4332ba9d75fa7c916db`](https://explorer-studio.genlayer.com/tx/0xc43ceef371e89766881ca5900d5307acb3e551749c6ea4332ba9d75fa7c916db) and retry review [`0xee538ad43784e696cc27a46778e6f9118343a30176474367ff395daec35e51da`](https://explorer-studio.genlayer.com/tx/0xee538ad43784e696cc27a46778e6f9118343a30176474367ff395daec35e51da) finalized `reviewed / approved` (initial review `0x58b60e80d3069ccdfa30eeea8abe391d64e345325922813cf2725bb919dcd9e3` was finalized `UNDETERMINED` and is retained as historical failure); unsafe proposal [`0x1ff51a43575f0374c34027299b863fb37b35cd4986ecc56f2677a1fa9514efcd`](https://explorer-studio.genlayer.com/tx/0x1ff51a43575f0374c34027299b863fb37b35cd4986ecc56f2677a1fa9514efcd) and review [`0x4468343f68ad0015b9bb5e77e52869c9e22b011960ad42d1e84876bda5919516`](https://explorer-studio.genlayer.com/tx/0x4468343f68ad0015b9bb5e77e52869c9e22b011960ad42d1e84876bda5919516) finalized `reviewed / blocked`; ambiguous proposal [`0x8763ce1391802399001c8d98123c256b192836cf4cc4026f740295fbc8e41e69`](https://explorer-studio.genlayer.com/tx/0x8763ce1391802399001c8d98123c256b192836cf4cc4026f740295fbc8e41e69) and review [`0xc38bff907c0a511f6e021ac961140cdb751921e6a67c291c131b8519452b9892`](https://explorer-studio.genlayer.com/tx/0xc38bff907c0a511f6e021ac961140cdb751921e6a67c291c131b8519452b9892) finalized `reviewed / inconclusive`; replay [`0xa6f6ba91ced35eab0759fbc329a4ee4f12473e7a80045d5a7606374703bcbfd7`](https://explorer-studio.genlayer.com/tx/0xa6f6ba91ced35eab0759fbc329a4ee4f12473e7a80045d5a7606374703bcbfd7) finalized with the expected replay rollback; counterevidence challenge [`0x4f4cf0b23b21213ebe1ef22a3179a4d2c5cd394c20ddd1a6383fb2b4a21b6d9d`](https://explorer-studio.genlayer.com/tx/0x4f4cf0b23b21213ebe1ef22a3179a4d2c5cd394c20ddd1a6383fb2b4a21b6d9d) finalized `CHALLENGED`, challenger `0xae82EFfe54dCcfd170d9a08EeE128339A70347f7`, exact bond `0.001 GEN`, URL `https://raw.githubusercontent.com/Bibidee/helix/e6a13d9/evidence/safe_evidence.txt`, hash `0x88402abd1306124510f08c035d2bf37fab3d0a7f73932a65083495736f5ca2e2`, stored snapshot verified `YES`; safe-v051b proposal [`0x926d9206661d35fe6071de3beb3e0492d26078a5819a866ae4c0f455104c1d60`](https://explorer-studio.genlayer.com/tx/0x926d9206661d35fe6071de3beb3e0492d26078a5819a866ae4c0f455104c1d60) is finalized and its review `0x3b9b75c17d3f46761725cfbf47215041991e9a6ae09761f1388f662d3717fd48` remains committing.
+- Protocol-time-gated v0.5.1 evidence: `safe-v051` challenge opens at `2026-08-25T15:56:31Z`; its challenged review deadline is `2026-08-25T21:56:31Z`. The independent safe-v051b approval must wait six hours from its finalized review timestamp before consumption and double-consumption testing.
 
 ## Helix v0.5.0 — HISTORICAL SOURCE-MATCHED DEPLOYMENT
 
